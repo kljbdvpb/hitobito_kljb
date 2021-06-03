@@ -1,20 +1,22 @@
-$LOAD_PATH.push File.expand_path('../lib', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.push File.expand_path('lib', __dir__)
 
 # Maintain your wagon's version:
 require 'hitobito_kljb/version'
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
-  # rubocop:disable SingleSpaceBeforeFirstArg
   s.name        = 'hitobito_kljb'
   s.version     = HitobitoKljb::VERSION
-  s.authors     = ['Your name']
-  s.email       = ['Your email']
+  s.authors     = ['Matthias Viehweger']
+  s.email       = ['viehweger@puzzle.ch']
   # s.homepage    = 'TODO'
-  s.summary     = 'Kljb'
-  s.description = 'Wagon description'
+  s.summary     = 'KLJB'
+  s.description = 'Groupstructure for KLJB-wagon'
+
+  s.required_ruby_version = File.read('.ruby-version').chomp
 
   s.files = Dir['{app,config,db,lib}/**/*'] + ['Rakefile']
   s.test_files = Dir['test/**/*']
-  # rubocop:enable SingleSpaceBeforeFirstArg
 end
