@@ -19,15 +19,17 @@ class KljbPersonSeeder < PersonSeeder
 
 end
 
-puzzlers = ['Pascal Zumkehr',
-            'Pierre Fritsch',
-            'Andreas Maierhofer',
-            'Mathis Hofer',
-            'Andre Kunz',
-            'Pascal Simon',
-            'Roland Studer']
+puzzlers = [
+  'Pascal Zumkehr',
+  'Andreas Maierhofer',
+  'Pascal Simon',
+  'Matthias Viehweger',
+  'Roland Studer'
+]
 
-devs = {'Customer Name' => 'customer@email.com'}
+devs = {
+  # 'Customer Name' => 'customer@email.com'
+}
 puzzlers.each do |puz|
   devs[puz] = "#{puz.split.last.downcase}@puzzle.ch"
 end
