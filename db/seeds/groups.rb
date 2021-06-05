@@ -6,4 +6,4 @@
 #  https://github.com/hitobito/hitobito_kljb.
 
 
-Group::Root.seed_once(:parent_id, name: 'Hauptgruppe')
+Group::Dioezesanverband.seed_once(:parent_id, name: 'KLJB Paderborn')
