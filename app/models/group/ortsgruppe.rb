@@ -17,7 +17,7 @@ class Group::Ortsgruppe < ::Group
   end
 
   class Mitglied < ::Role
-    self.permissions = [:member]
+    self.permissions = [:group_read]
   end
 
   roles Foerdermitglied, Mitglied

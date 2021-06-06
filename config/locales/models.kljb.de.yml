@@ -10,16 +10,114 @@ de:
 
       ### GROUPS
 
-      group/root:
-        one: Hauptgruppe
-        other: Hauptgruppen
+      group/dioezesanverband:
+        one: Diözesanverband
+        other: Diözesanverbände
+      group/dioezesanverband_vorstand:
+        one: Diözesanvorstand
+        other: Diözesanvorstände
+      group/dioezesanverband_buero:
+        one: Büro
+        other: Büros
+      group/dioezesanverband_ag:
+        one: AG
+        other: AGs
+      group/dioezesanverband_kontakte:
+        one: Kontakte
+        other: Kontakte
 
+      group/regionalverband:
+        one: Regionalverband
+        other: Regionalverbände
+      group/regionalverband_vorstand:
+        one: Vorstand
+        other: Vorstände
+      group/regionalverband_ag:
+        one: AG
+        other: AGs
+      group/regionalverband_kontakte:
+        one: Kontakte
+        other: Kontakte
+
+      group/ortsgruppe:
+        one: Ortsgruppe
+        other: Ortsgruppen
+      group/ortsgruppe_vorstand:
+        one: Vorstand
+        other: Vorstände
+      group/ortsgruppe_ag:
+        one: AG
+        other: AGs
+      group/ortsgruppe_kontakte:
+        one: Kontakte
+        other: Kontakte
+      group/ortsgruppe_leiterrunde:
+        one: Leiterrunde
+        other: Leiterrunden
 
       ### ROLES
 
-      group/root/leader:
-        one: Leitung
-        description: Leitungspersonen verwalten die Applikation.
-      group/root/member:
+      group/dioezesanverband/foerdermitglied:
+        one: Fördermitglied
+      group/dioezesanverband/it_support:
+        one: IT-Support
+      group/dioezesanverband_vorstand/seelsorger:
+        one: Seelsorger*in
+      group/dioezesanverband_vorstand/vorstand:
+        one: Vorstand
+      group/dioezesanverband_vorstand/beratend:
+        one: Beratend
+      group/dioezesanverband_buero/verwaltungsleitung:
+        one: Verwaltungsleitung
+      group/dioezesanverband_buero/referent:
+        one: Referent*in
+      group/dioezesanverband_buero/sekretariat:
+        one: Sekretariat
+      group/dioezesanverband_buero/mitarbeiter:
+        one: Mitarbeiter*in
+      group/dioezesanverband_ag/sprecher:
+        one: Sprecher*in
+      group/dioezesanverband_ag/mitglied:
         one: Mitglied
-        description: Mitglieder sind alle anderen.
+      group/dioezesanverband_kontakte/kontakt:
+        one: Kontakt
+      group/dioezesanverband_kontakte/teamer:
+        one: Teamer*in
+
+      group/regionalverband/foerdermitglied:
+        one: Fördermitglied
+      group/regionalverband_vorstand/vorsitz:
+        one: Vorsitz
+      group/regionalverband_vorstand/geist:
+        one: Geist
+      group/regionalverband_vorstand/finanzverantwortlicher:
+        one: Finanzverantwortliche*r
+      group/regionalverband_vorstand/mitglied:
+        one: Mitglied
+      group/regionalverband_ag/sprecher:
+        one: Sprecher*in
+      group/regionalverband_ag/mitglied:
+        one: Mitglied
+      group/regionalverband_kontakte/kontakt:
+        one: Kontakt
+
+      group/ortsgruppe/foerdermitglied:
+        one: Fördermitglied
+      group/ortsgruppe/mitglied:
+        one: Mitglied
+      group/ortsgruppe_vorstand/vorsitz:
+        one: Vorsitz
+      group/ortsgruppe_vorstand/geist:
+        one: Geist
+      group/ortsgruppe_vorstand/finanzverantwortlicher:
+        one: Finanzverantwortliche*r
+      group/ortsgruppe_vorstand/mitglied:
+        one: Mitglied
+      group/ortsgruppe_ag/sprecher:
+        one: Sprecher*in
+      group/ortsgruppe_ag/mitglied:
+        one: Mitglied
+      group/ortsgruppe_kontakte/kontakt:
+        one: Kontakt
+      group/ortsgruppe_leiterrunde/leiter:
+        one: Leiter*in
