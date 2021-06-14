@@ -6,4 +6,16 @@
 #  https://github.com/hitobito/hitobito_kljb.
 
 
-Group::Dioezesanverband.seed_once(:parent_id, name: 'KLJB Paderborn')
+Group::Dioezesanverband.seed_once(
+  :parent_id,
+  parent_id: nil,
+
+  name: 'KLJB Paderborn',
+
+  address: 'Leostraße 21',
+  zip_code: '33098',
+  town: 'Paderborn',
+  country: 'Deutschland',
+
+  email: 'buero@kljb-paderborn.de'
+)

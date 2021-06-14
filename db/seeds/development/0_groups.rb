@@ -13,11 +13,12 @@ seeder = GroupSeeder.new
 root = Group.roots.first
 srand(42)
 
-if root.address.blank?
-  root.update_attributes(seeder.group_attributes)
-  root.default_children.each do |child_class|
-    child_class.first.update_attributes(seeder.group_attributes)
-  end
+Group.find_each do |group|
+  next if group.address.present?
+  next if group == root
+
+  group.attributes = seeder.group_attributes
+  group.save!
 end
 
 # TODO: define more groups
