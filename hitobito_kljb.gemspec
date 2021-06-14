@@ -15,8 +15,6 @@ Gem::Specification.new do |s|
   s.summary     = 'KLJB'
   s.description = 'Groupstructure for KLJB-wagon'
 
-  s.required_ruby_version = File.read('.ruby-version').chomp
-
   s.files = Dir['{app,config,db,lib}/**/*'] + ['Rakefile']
   s.test_files = Dir['test/**/*']
 end
