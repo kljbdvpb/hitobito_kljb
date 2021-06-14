@@ -1,0 +1,23 @@
+
+
+// Color-variables are specific to this wagon and defined in
+// app/assets/stylesheets/hitobito/customizable/_variables.scss
+
+#page-header {
+  & > a {
+    color: $headerLinkColor;
+  }
+
+  .is-logged-out & {
+    a {
+      color: $headerLinkColor;
+    }
+  }
+}
+
+
+.nav-left {
+  a.is-active, li.is-active > a {
+    background-color: $navLeftActiveBackground
+  }
+}

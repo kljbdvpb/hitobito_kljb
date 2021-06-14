@@ -4,14 +4,6 @@
 // GLOBAL VALUES
 // --------------------------------------------------
 
-// KLJB-colors
-// $green:                 #008C84;
-// $yellow:                #FFC805;
-// $purple:                #B845E6;
-// $cyan:                  #66FFFF;
-// $yellowgreen:           #B3FF00;
-
-
 // Grays
 // -------------------------
 $black:                 #474E5D !default;
@@ -20,48 +12,57 @@ $grayDark:              #8b8b8b !default;
 $gray:                  #979CA6 !default;
 $grayLight:             #E8EBF0 !default;
 $grayLighter:           #F8F9FA !default;
-$white:                 #fff !default;
+$white:                 #FFFFFF !default;
+
 
 // Colors
 // ----------------------------
-$green:                 #008C84;
-$yellow:                #FFC805;
-$purple:                #B845E6;
-$cyan:                  #66FFFF;
-$yellowGreen:           #B3FF00;
+$kljb-green:            #008C84;
+$kljb-yellow:           #FFC805;
+$kljb-purple:           #B845E6;
+$kljb-cyan:             #66FFFF;
+$kljb-yellowGreen:      #B3FF00;
 
-$blue:                  #329897 !default;
-$blueDark:              darken($blue, 10%) !default;
-// $green:                 #8DB850 !default;
+$kljb-websiteYellow:    #C8D100;
+$kljb-20percentGreen:   #C4F5DC;
+
+$green:                 $kljb-green !default;
 $greenDark:             darken($green, 10%) !default;
-$orange:                #DC795B;
-$orangeDark:            #C75B3B;
-// $purple:                #925D97;
-$purpleDark:            #6A396F;
-$red:                   $orange !default;
+$blue:                  #00358A !default; // not KLJB defined, chosen to match their #008C84
+$blueDark:              darken($blue, 10%) !default;
 
+$orange:                #DC795B; // not KLJB-defined, from core
+$orangeDark:            darken($orange, 10%);
+$purple:                #925D97; // not KLJB-defined, from core
+$purpleDark:            darken($purple, 10%);
+
+$red:                   $orange !default;
 
 $textColor:             $black !default;
 $borderColor:           $grayLight !default;
 
-$pageBackground:        $white; // lighten($green, 5%) !default;
+$pageBackground:        $grayLighter !default;
 $contentBackground:     $grayLight;
 $footerBackground:      $green;
 $bodyBackground:        $green;
 
-$focusColor:            $purple;
+$focusColor:            $kljb-purple;
 $shadowColor:           darken($pageBackground, 10%);
 $linkColor:             $green !default;
-$linkColorHover:        $yellowGreen !default;
+$linkColorHover:        $kljb-purple !default;
 
 $footerColor:           $white;
-$footerColorHover:      $white;
+$footerColorHover:      $kljb-yellowGreen;
 
-$tableColorHover:       lighten($yellow, 50%);
+$tableColorHover:       $kljb-20percentGreen;
+
+// Colors used in wagon.scss
+// -------------------------
+$headerLinkColor: $kljb-green;
+$navLeftActiveBackground: $tableColorHover;
 
 // Typography
 // -------------------------
-
 $sansFontFamily:        'Noto Sans', sans-serif;
 $headingFontFamily:     'Noto Sans', sans-serif; //'Quicksand', $sansFontFamily !default;
 $baseFontFamily:        'Noto Sans', sans-serif; //'Varela Round', $sansFontFamily !default;
