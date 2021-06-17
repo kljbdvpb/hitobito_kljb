@@ -20,10 +20,11 @@ class KljbPersonSeeder < PersonSeeder
 end
 
 puzzlers = [
-  'Pascal Zumkehr',
   'Andreas Maierhofer',
   'Pascal Simon',
   'Matthias Viehweger',
+  'Carlo Beltrame',
+  'Olivier Brian',
   'Roland Studer'
 ]
 
