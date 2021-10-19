@@ -23,6 +23,9 @@ module HitobitoKljb
     config.to_prepare do
       # extend application classes here
       Group.include Kljb::Group
+      Person.include Kljb::Person
+
+      Event::ParticipationContactData.include Kljb::Event::ParticipationContactData
     end
 
     initializer 'kljb.add_settings' do |_app|
