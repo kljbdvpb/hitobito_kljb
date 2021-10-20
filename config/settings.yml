@@ -24,6 +24,9 @@ root_email: hitobito-kljb@puzzle.ch
 currency:
   unit: EUR
 
+phone_number:
+  default_country: DE
+
 countries:
   prioritized:
     - DE
@@ -32,3 +35,7 @@ countries:
     - LI
     - FR
     - IT
+
+addresses:
+  imported_countries:
+    - DE
