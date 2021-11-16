@@ -24,6 +24,7 @@ module HitobitoKljb
       # extend application classes here
       Group.include Kljb::Group
       Person.include Kljb::Person
+      Event.include Kljb::Event
 
       Event::ParticipationContactData.include Kljb::Event::ParticipationContactData
     end

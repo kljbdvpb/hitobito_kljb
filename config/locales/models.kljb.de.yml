@@ -121,3 +121,13 @@ de:
         one: Kontakt
       group/ortsgruppe_leiterrunde/leiter:
         one: Leiter*in
+        
+      ### EVENTS
+      event/role/teamer:
+        one: Teamer*in
+      event/role/leader:
+        one: Leitung
+      event/role/helper:
+        one: Helfer*in
+      event/role/participant:
+        one: Teilnehmer*in
