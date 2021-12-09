@@ -21,6 +21,10 @@ application:
 # to this address to set a password.
 root_email: hitobito-kljb@puzzle.ch
 
+email:
+  # Sender for all emails sent by the application
+  sender: <%= "KLJB Mitgliederdatenbank <noreply@#{mail_domain}>" %>
+  
 currency:
   unit: EUR
 
