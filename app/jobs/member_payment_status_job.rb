@@ -5,16 +5,16 @@
 #  or later. See the COPYING file at the top-level directory or at
 #  https://github.com/hitobito/hitobito_kljb.
 
-module Kljb::Person
-  extend ActiveSupport::Concern
+class MemberPaymentStatusJob < RecurringJob
+  private
 
-  included do
-    Person::PUBLIC_ATTRS.delete(:nickname)
+  def perform_internal
+    Group::Ortsgruppe.all.find_each do |group|
+      Groups::MemberPaymentStatus.new(group).update
+    end
   end
 
-  def underage?(cutoff_date = Time.zone.now.to_date)
-    return false unless birthday?
-
-    years(cutoff_date).presence < 18
+  def next_run
+    Time.new(Time.zone.now.year.succ, 8, 31, 5, 0).in_time_zone
   end
 end
