@@ -27,6 +27,8 @@ module HitobitoKljb
       Event.include Kljb::Event
 
       Event::ParticipationContactData.include Kljb::Event::ParticipationContactData
+
+      Export::Tabular::Groups::List.prepend Kljb::Export::Tabular::Groups::List
     end
 
     initializer 'kljb.add_settings' do |_app|
