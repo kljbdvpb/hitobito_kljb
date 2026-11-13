@@ -11,7 +11,8 @@ root:
   name: KLJB Paderborn
   type: Group::Dioezesanverband
   email: buero@kljb-paderborn.de
-  address: Leostraße 21
+  street: Leostraße
+  housenumber: 21
   zip_code: 33098
   town: Paderborn
 
@@ -23,7 +24,8 @@ dioezesanvorstand:
   name: Diözesanvorstand
   type: Group::DioezesanverbandVorstand
   email: dwight@example.org
-  address: Brahmsweg 25b
+  street: Brahmsweg
+  housenumber: 25b
   zip_code: 5385
   town: Tiaberg
 
@@ -35,7 +37,8 @@ buero:
   name: Büro
   type: Group::DioezesanverbandBuero
   email: edelmira@example.net
-  address: Straßburger Str. 4
+  street: Straßburger Str.
+  housenumber: 4
   zip_code: 6370
   town: Nord Hennes
 
@@ -47,7 +50,8 @@ ag_4:
   name: AG
   type: Group::DioezesanverbandAg
   email: vito@example.com
-  address: Hitdorfer Str. 20a
+  street: Hitdorfer Str.
+  housenumber: 20a
   zip_code: 7642
   town: Neu Johann
 
@@ -59,7 +63,8 @@ kontakte_5:
   name: Kontakte
   type: Group::DioezesanverbandKontakte
   email: eura.lesch@example.org
-  address: Karl-Marx-Str. 42c
+  street: Karl-Marx-Str.
+  housenumber: 42c
   zip_code: 7913
   town: Nord Ibrahimhagen
 
@@ -70,7 +75,8 @@ nord:
   rgt: 41
   name: Nord
   type: Group::Regionalverband
-  address: An der Foobar 23
+  street: An der Foobar
+  housenumber: 23
   zip_code: 76543
   town: Hinterfüdlikon
 
