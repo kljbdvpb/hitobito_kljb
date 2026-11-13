@@ -9,7 +9,13 @@ module Kljb::Person
   extend ActiveSupport::Concern
 
   included do
+    # Spitzname komplett ausblenden. Die Konstanten und used_attributes werden beim
+    # Laden der Core-Klasse berechnet, daher werden sie hier gezielt nachgezogen.
     Person::PUBLIC_ATTRS.delete(:nickname)
+    Person::MERGABLE_ATTRS.delete(:nickname)
+    Person::FILTER_ATTRS.delete(:nickname)
+    Person::SEARCHABLE_ATTRS.delete(:nickname)
+    self.used_attributes -= [:nickname]
   end
 
   def underage?(cutoff_date = Time.zone.now.to_date)
