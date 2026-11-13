@@ -79,7 +79,7 @@ jobs:
       - name: Datenbank vorbereiten
         working-directory: hitobito_kljb
         run: |
-          bundle exec rails db:create db:migrate wagon:migrate
+          bundle exec rake db:create db:migrate wagon:migrate
 
       - name: Specs ausführen
         working-directory: hitobito_kljb
