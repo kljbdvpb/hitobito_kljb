@@ -3,111 +3,95 @@
 //  or later. See the COPYING file at the top-level directory or at
 //  https://github.com/hitobito/hitobito_kljb.
 
+// Diese Datei ersetzt die Core-Datei vollständig (Wagon liegt im Load-Path davor).
+// Namen und Struktur folgen Core 2.11.5 (kebab-case). Werte sind KLJB-Farben.
 
+// Suppress the vast amount of color contrast warnings for now (wie im Core)
+$min-contrast-ratio: 1;
 
-/* Bootstrap variable definition here */
-
-// GLOBAL VALUES
+// KLJB-Farben
 // --------------------------------------------------
-
-// Grays
-// -------------------------
-$black:                 #474E5D !default;
-$grayDarker:            #797E89 !default;
-$grayDark:              #8b8b8b !default;
-$gray:                  #979CA6 !default;
-$grayLight:             #E8EBF0 !default;
-$grayLighter:           #F8F9FA !default;
-$white:                 #FFFFFF !default;
-
-
-// Colors
-// ----------------------------
 $kljb-green:            #008C84;
 $kljb-yellow:           #FFC805;
 $kljb-purple:           #B845E6;
 $kljb-cyan:             #66FFFF;
-$kljb-yellowGreen:      #B3FF00;
+$kljb-yellow-green:     #B3FF00;
+$kljb-website-yellow:   #C8D100;
+$kljb-20percent-green:  #C4F5DC;
 
-$kljb-websiteYellow:    #C8D100;
-$kljb-20percentGreen:   #C4F5DC;
+// Grays
+// -------------------------
+$black:                 #474E5D !default;
+$gray-darker:           #797E89 !default;
+$gray-dark:             #8b8b8b !default;
+$gray:                  #979CA6 !default;
+$gray-light:            #E8EBF0 !default;
+$gray-lighter:          #F8F9FA !default;
+$white:                 #FFFFFF !default;
 
+// Colors
+// ----------------------------
 $green:                 $kljb-green !default;
-$greenDark:             darken($green, 10%) !default;
-$blue:                  #00358A !default; // not KLJB defined, chosen to match their #008C84
-$blueDark:              darken($blue, 10%) !default;
-
-$orange:                #DC795B; // not KLJB-defined, from core
-$orangeDark:            darken($orange, 10%);
-$purple:                #925D97; // not KLJB-defined, from core
-$purpleDark:            darken($purple, 10%);
+$green-dark:            darken($green, 10%) !default;
+$blue:                  #00358A !default; // nicht KLJB-definiert, passend zu #008C84
+$blue-dark:             darken($blue, 10%) !default;
+$orange:                #DC795B; // nicht KLJB-definiert, aus dem Core
+$orange-dark:           darken($orange, 10%);
+$purple:                #925D97; // nicht KLJB-definiert, aus dem Core
+$purple-dark:           darken($purple, 10%);
 
 $red:                   $orange !default;
 
-$textColor:             $black !default;
-$borderColor:           $grayLight !default;
+$text-color:            $black !default;
+$border-color:          $gray-light !default;
 
-$pageBackground:        $grayLighter !default;
-$contentBackground:     $grayLight;
-$footerBackground:      $green;
-$bodyBackground:        $green;
+$page-background:       $gray-lighter !default;
+$content-background:    $gray-light;
+$footer-background:     $green;
+$body-background:       $green;
 
-$focusColor:            $kljb-purple;
-$shadowColor:           darken($pageBackground, 10%);
-$linkColor:             $green !default;
-$linkColorHover:        $kljb-purple !default;
+$focus-color:           $kljb-purple;
+$shadow-color:          darken($page-background, 10%);
+$link-color:            $green !default;
+$link-hover-color:      $kljb-purple !default;
 
-$footerColor:           $white;
-$footerColorHover:      $kljb-yellowGreen;
+$footer-color:          $white;
+$footer-color-hover:    $kljb-yellow-green;
 
-$tableColorHover:       $kljb-20percentGreen;
+$table-color-hover:     $kljb-20percent-green;
 
-// Colors used in wagon.scss
+// Farben, die in _wagon.scss verwendet werden
 // -------------------------
-$headerLinkColor: $kljb-green;
-$navLeftActiveBackground: $tableColorHover;
+$header-link-color: $kljb-green;
+$nav-left-active-background: $table-color-hover;
 
 // Typography
 // -------------------------
-$sansFontFamily:        'Noto Sans', sans-serif;
-$headingFontFamily:     'Noto Sans', sans-serif; //'Quicksand', $sansFontFamily !default;
-$baseFontFamily:        'Noto Sans', sans-serif; //'Varela Round', $sansFontFamily !default;
-$headingsFontWeight:    normal !default; // instead of browser default, bold
+$sans-font-family:      'Noto Sans', sans-serif;
+$heading-font-family:   'Noto Sans', sans-serif;
+$font-family-base:      'Noto Sans', sans-serif;
+$headings-font-weight:  normal !default; // statt Browser-Default fett
 
 // Decoration
 // -------------------------
-$borderRadius:           6px;
+$border-radius:         6px;
 
 // Rhythm
 // -------------------------
-$vSpace:                24px;
-
+$v-space:               24px;
 
 // FLUID GRID
 // --------------------------------------------------
-
-// Default
-// -------------------------
-$fluidGridColumnWidth:         6.382978723% !default;
-$fluidGridGutterWidth:         2.127659574% !default;
-
-// Portrait tablet to default desktop
-// -------------------------
-$fluidGridColumnWidthTablet:   5.801104972% !default;
-$fluidGridGutterWidthTablet:   2.762430939% !default;
-
-// Large desktop and up
-// -------------------------
-$fluidGridColumnWidthLarge:    5.982905983% !default;
-$fluidGridGutterWidthLarge:    2.564102564% !default;
-
+$fluid-grid-column-width:         6.382978723% !default;
+$fluid-grid-gutter-width:         2.127659574% !default;
+$fluid-grid-column-width-tablet:  5.801104972% !default;
+$fluid-grid-gutter-width-tablet:  2.762430939% !default;
+$fluid-grid-column-width-large:   5.982905983% !default;
+$fluid-grid-gutter-width-large:   2.564102564% !default;
 
 // RESPONSIVE DESIGN
 // --------------------------------------------------
-
-// Media widths
-// -------------------------
-$mediaPhone:              480px !default;
-$mediaTablet:             768px !default;
-$mediaDesktop:            980px !default;
-$mediaLarge:              1200px !default; // and upper
+$media-phone:           480px !default;
+$media-tablet:          768px !default;
+$media-desktop:         980px !default;
+$media-large:           1200px !default; // und größer
