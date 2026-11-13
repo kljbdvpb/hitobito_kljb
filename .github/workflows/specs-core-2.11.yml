@@ -93,9 +93,9 @@ jobs:
           bundle exec rake db:create db:schema:load wagon:migrate
 
       - name: Specs des Wagons ausführen
-        # Aus dem Core-Verzeichnis: Der Wagon-spec_helper (Fixture-Pfad) greift hier
-        # noch nicht, siehe docs/phase1-wagon-pruefung.md (offene Fixture-Fehler).
+        # Aus dem Core-Verzeichnis. Der Wagon-spec_helper wird explizit vorab geladen,
+        # damit sein Fixture-Pfad gilt (sonst greift der Core-spec_helper).
         working-directory: hitobito
         env:
           RAILS_ENV: test
-        run: bundle exec rspec ../hitobito_kljb/spec
+        run: bundle exec rspec -r ../hitobito_kljb/spec/spec_helper.rb ../hitobito_kljb/spec
