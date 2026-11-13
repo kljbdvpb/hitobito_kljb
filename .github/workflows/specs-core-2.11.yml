@@ -92,6 +92,13 @@ jobs:
         run: |
           bundle exec rake db:create db:schema:load wagon:migrate
 
+      - name: Diagnose Testdatenbank (vor Specs)
+        working-directory: hitobito
+        env:
+          RAILS_ENV: test
+        run: |
+          bundle exec rails runner 'puts "DB=#{ActiveRecord::Base.connection.current_database}"; puts "COLS=#{Group.column_names.grep(/members/).inspect}"; puts "MIGS=#{ActiveRecord::Base.connection.select_values("SELECT version FROM schema_migrations WHERE version LIKE \x272021121%\x27").inspect}"'
+
       - name: Specs des Wagons ausführen
         # Aus dem Core-Verzeichnis. Der Wagon-spec_helper wird explizit vorab geladen,
         # damit sein Fixture-Pfad gilt (sonst greift der Core-spec_helper).
