@@ -11,7 +11,7 @@ module HitobitoKljb
     include Wagons::Wagon
 
     # Set the required application version.
-    app_requirement '>= 0'
+    app_requirement '>= 2.11'
 
     # Add a load path for this specific wagon
     config.autoload_paths += %W[
