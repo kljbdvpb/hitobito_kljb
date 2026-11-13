@@ -9,6 +9,8 @@ module Kljb::Event::ParticipationContactData
   extend ActiveSupport::Concern
 
   included do
-    self.contact_attrs -= [:nickname]
+    # Core 2.11.5: Kontaktattribute stehen in Event.possible_contact_attrs
+    # (das frühere contact_attrs existiert nicht mehr).
+    Event.possible_contact_attrs -= [:nickname]
   end
 end
