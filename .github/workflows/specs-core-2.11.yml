@@ -1,0 +1,86 @@
+name: Specs gegen Core 2.11.5
+
+# Eigener Lauf für den Portierungs-Branch. Das Upstream-Reusable-Workflow ist auf
+# die Organisation hitobito/ festgelegt und wird hier nicht verwendet.
+#
+# Layout wie im Composition-Repo: Core in hitobito/, Wagon in hitobito_kljb/.
+# Die Datenbank-Zugangsdaten sind reine CI-Testwerte für den Postgres-Dienst
+# dieses Laufs, keine echten Zugangsdaten.
+
+on:
+  push:
+    branches: [update/2.11.5]
+    paths-ignore: ['**.md']
+  pull_request:
+    paths-ignore: ['**.md']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: specs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  specs:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: hitobito
+          POSTGRES_PASSWORD: hitobito
+          POSTGRES_DB: hitobito_test
+        ports:
+          - "5432:5432"
+        options: >-
+          --health-cmd "pg_isready -U hitobito"
+          --health-interval 2s
+          --health-timeout 10s
+          --health-retries 10
+    env:
+      RAILS_ENV: test
+      NO_COVERAGE: "true"
+      SECRET_KEY_BASE: ci-only-not-a-secret
+      RAILS_DB_ADAPTER: postgresql
+      RAILS_DB_HOST: 127.0.0.1
+      RAILS_DB_PORT: 5432
+      RAILS_DB_USERNAME: hitobito
+      RAILS_DB_PASSWORD: hitobito
+      RAILS_DB_NAME: hitobito_test
+      RAILS_TEST_DB_NAME: hitobito_test
+    steps:
+      - name: Wagon auschecken
+        uses: actions/checkout@v6
+        with:
+          path: hitobito_kljb
+
+      - name: Core 2.11.5 auschecken
+        uses: actions/checkout@v6
+        with:
+          repository: kljbdvpb/hitobito
+          ref: upstream-2.11.5
+          path: hitobito
+          fetch-depth: 1
+
+      - name: Systempakete für pg-Gem
+        run: sudo apt-get update && sudo apt-get install -y libpq-dev
+
+      - name: Ruby einrichten
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3.13'
+          bundler: '4.0.13'
+          bundler-cache: true
+          working-directory: hitobito_kljb
+
+      - name: Datenbank vorbereiten
+        working-directory: hitobito_kljb
+        run: |
+          bundle exec rails db:create db:migrate wagon:migrate
+
+      - name: Specs ausführen
+        working-directory: hitobito_kljb
+        run: bundle exec rspec
