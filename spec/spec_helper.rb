@@ -16,5 +16,6 @@ require File.join(ENV['APP_ROOT'], 'spec', 'spec_helper.rb')
 Dir[HitobitoKljb::Wagon.root.join('spec/support/**/*.rb')].sort.each { |f| require f }
 
 RSpec.configure do |config|
-  config.fixture_path = File.expand_path('../fixtures', __FILE__)
+  # Core 2.11 nutzt fixture_paths (Plural, Array); fixture_path= existiert nicht mehr.
+  config.fixture_paths = [File.expand_path('../fixtures', __FILE__)]
 end
