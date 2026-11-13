@@ -77,8 +77,13 @@ jobs:
         with:
           ruby-version: '3.3.13'
           bundler: '4.0.13'
-          bundler-cache: true
           working-directory: hitobito
+
+      - name: Gems installieren (Lockfile darf sich durch Wagonfile.ci ändern)
+        working-directory: hitobito
+        env:
+          BUNDLE_FROZEN: "false"
+        run: bundle install --jobs 4 --retry 3
 
       - name: Datenbank vorbereiten
         working-directory: hitobito
