@@ -3,7 +3,8 @@ name: Specs gegen Core 2.11.5
 # Eigener Lauf für den Portierungs-Branch. Das Upstream-Reusable-Workflow ist auf
 # die Organisation hitobito/ festgelegt und wird hier nicht verwendet.
 #
-# Layout wie im Composition-Repo: Core in hitobito/, Wagon in hitobito_kljb/.
+# Ablauf wie im Upstream-CI: Der Core ist das Arbeitsverzeichnis, der Wagon liegt
+# daneben (hitobito_kljb/) und wird über Wagonfile.ci eingebunden.
 # Die Datenbank-Zugangsdaten sind reine CI-Testwerte für den Postgres-Dienst
 # dieses Laufs, keine echten Zugangsdaten.
 
@@ -41,7 +42,6 @@ jobs:
           --health-timeout 10s
           --health-retries 10
     env:
-      RAILS_ENV: test
       NO_COVERAGE: "true"
       SECRET_KEY_BASE: ci-only-not-a-secret
       RAILS_DB_ADAPTER: postgresql
@@ -68,19 +68,27 @@ jobs:
       - name: Systempakete für pg-Gem
         run: sudo apt-get update && sudo apt-get install -y libpq-dev
 
+      - name: Wagonfile für CI aktivieren
+        working-directory: hitobito
+        run: cp -v Wagonfile.ci Wagonfile
+
       - name: Ruby einrichten
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3.13'
           bundler: '4.0.13'
           bundler-cache: true
-          working-directory: hitobito_kljb
+          working-directory: hitobito
 
       - name: Datenbank vorbereiten
-        working-directory: hitobito_kljb
+        working-directory: hitobito
+        env:
+          RAILS_ENV: test
         run: |
-          bundle exec rake db:create db:migrate wagon:migrate
+          bundle exec rake db:create db:schema:load wagon:migrate
 
-      - name: Specs ausführen
-        working-directory: hitobito_kljb
-        run: bundle exec rspec
+      - name: Specs des Wagons ausführen
+        working-directory: hitobito
+        env:
+          RAILS_ENV: test
+        run: bundle exec rspec ../hitobito_kljb/spec
