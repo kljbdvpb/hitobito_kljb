@@ -98,4 +98,5 @@ jobs:
         working-directory: hitobito
         env:
           RAILS_ENV: test
-        run: bundle exec rspec -r ../hitobito_kljb/spec/spec_helper.rb ../hitobito_kljb/spec
+        # Erst der Core-spec_helper (lädt rspec/rails), dann der Wagon-spec_helper (setzt Fixture-Pfad).
+        run: bundle exec rspec -r ./spec/spec_helper.rb -r ../hitobito_kljb/spec/spec_helper.rb ../hitobito_kljb/spec
