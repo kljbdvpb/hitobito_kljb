@@ -12,7 +12,8 @@ Group::Dioezesanverband.seed_once(
 
   name: 'KLJB Paderborn',
 
-  address: 'Leostraße 21',
+  street: 'Leostraße',
+  housenumber: '21',
   zip_code: '33098',
   town: 'Paderborn',
   country: 'Deutschland',
