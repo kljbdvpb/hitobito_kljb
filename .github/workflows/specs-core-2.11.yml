@@ -84,7 +84,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3.13'
-          bundler: '4.0.13'
+          bundler: '4.0.22'
           working-directory: hitobito
 
       - name: Gems installieren (Lockfile darf sich durch Wagonfile.ci ändern)
@@ -97,18 +97,18 @@ jobs:
         working-directory: hitobito
         env:
           RAILS_ENV: test
-          # wie Upstream-Setup (wagon-ci-setup): kein zusaetzlicher Test-DB-Klon
-          SKIP_TEST_DATABASE: "true"
         run: |
           bundle exec rake db:create db:schema:load wagon:migrate
 
       - name: Diagnose Testumgebung (vor Specs)
-        # Belegt Spalten und Gruppen-/Rollentypen, bevor rspec startet.
+        # Belegt Datenbank und Wagon-Spalten, bevor rspec startet. (Rollentypen lassen sich
+        # hier nicht belegen: Group.reset_types! aus core spec/support/group/0_base.rb
+        # laeuft erst unter rspec.)
         working-directory: hitobito
         env:
           RAILS_ENV: test
         run: |
-          bundle exec rails runner 'puts "DB=#{ActiveRecord::Base.connection.current_database}"; puts "COLS=#{Group.column_names.grep(/members/).inspect}"; puts "ROLE_OK=#{Role.all_types.map(&:name).include?("Group::Ortsgruppe::Mitglied")}"'
+          bundle exec rails runner 'puts "DB=#{ActiveRecord::Base.connection.current_database}"; puts "COLS=#{Group.column_names.grep(/members/).inspect}";'
 
       - name: Specs des Wagons ausführen
         # Wie Upstream: Arbeitsverzeichnis = Wagon, Gemfile = Core (Wagonfile.ci bindet den

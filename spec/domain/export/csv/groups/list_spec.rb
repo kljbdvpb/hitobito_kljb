@@ -48,7 +48,7 @@ describe Export::Tabular::Groups::List do
     expect(subject.headers).to eq expected
   end
 
-  it 'has 4 items' do
+  it 'has 16 items' do
     expect(subject.size).to eq(16)
   end
 
