@@ -23,13 +23,18 @@ application:
 # not the customers.
 # Initially, a password reset token may be mailed from the application
 # to this address to set a password.
-root_email: datenschutz@kljb-paderborn.de
+# Per RAILS_ROOT_USER_EMAIL ueberschreibbar (wie im Core-settings.yml).
+root_email: <%= ENV['RAILS_ROOT_USER_EMAIL'].presence || 'datenschutz@kljb-paderborn.de' %>
 
 impersonate:
   notify: false
 
+# Absenderdomain per RAILS_MAIL_DOMAIN ueberschreibbar (wie im Core-settings.yml),
+# Fallback: post.kljb-paderborn.de.
+# Hinweis: "KLIB" im Anzeigenamen ist bewusst unveraendert (Fachentscheidung, kein Tippfehler-Fix).
+<% mail_domain = ENV['RAILS_MAIL_DOMAIN'].presence || 'post.kljb-paderborn.de' %>
 email:
-  sender:  <%= "KLIB Mitgliederdatenbank <noreply@post.kljb-paderborn.de>" %>
+  sender: <%= "KLIB Mitgliederdatenbank <noreply@#{mail_domain}>" %>
 
 currency:
   unit: EUR
