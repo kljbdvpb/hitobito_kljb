@@ -32,6 +32,9 @@ module HitobitoKljb
       Export::Tabular::Groups::List.prepend Kljb::Export::Tabular::Groups::List
       Export::Tabular::People::PeopleAddress.prepend Kljb::Export::Tabular::People::HideNickname
       Export::Tabular::People::PeopleFull.prepend Kljb::Export::Tabular::People::HideNickname
+
+      # Authentifizierungs-Header vor dem Verteiler-Relay entfernen (Brevo/web.de/GMX)
+      MailRelay::Lists.prepend Kljb::MailRelay::StripAuthHeaders
     end
 
     initializer "kljb.add_settings" do |_app|
