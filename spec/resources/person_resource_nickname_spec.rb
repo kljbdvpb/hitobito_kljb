@@ -33,3 +33,15 @@ describe PersonResource, type: :resource do
     expect(json).not_to include('Spitzi')
   end
 end
+
+# Review M2: nickname weder filter-, sortier- noch schreibbar (kein Such-Orakel).
+describe PersonResource, 'nickname restrictions' do
+  it 'ist nicht schreibbar' do
+    expect(PersonResource.config[:attributes][:nickname][:writable]).to be false
+  end
+
+  it 'hat weder Filter noch Sortierung' do
+    expect(PersonResource.config[:filters]).not_to have_key(:nickname)
+    expect(PersonResource.config[:sorts]).not_to have_key(:nickname)
+  end
+end
