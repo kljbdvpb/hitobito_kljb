@@ -13,5 +13,17 @@ module Kljb::Event
       Event::Role::Teamer,
       Event::Role::Helper,
       Event::Role::Participant]
+
+    # Spitzname ist kein Event-Kontaktattribut mehr (siehe Kljb::Event::ParticipationContactData).
+    # Alte Events koennen :nickname noch in required/hidden_contact_attrs gespeichert haben;
+    # Core wuerde sie sonst als ungueltig ablehnen (assert_*_contact_attrs_valid).
+    before_validation :remove_nickname_from_contact_attrs
+  end
+
+  private
+
+  def remove_nickname_from_contact_attrs
+    self.required_contact_attrs = required_contact_attrs.reject { |a| a.to_s == 'nickname' }
+    self.hidden_contact_attrs = hidden_contact_attrs.reject { |a| a.to_s == 'nickname' }
   end
 end

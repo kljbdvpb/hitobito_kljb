@@ -37,6 +37,17 @@ module HitobitoKljb
       # Legacy-Stack (ohne config/mail.yml) und neuer Stack (mit config/mail.yml)
       MailRelay::Lists.prepend Kljb::MailRelay::StripAuthHeaders
       Messages::BulkMail::MailFactory.prepend Kljb::MailRelay::BulkMailStripAuthHeaders
+
+      # Spitzname auch in vCard, API (Legacy-REST, JSON:API), Etiketten, Listenkoepfen und
+      # Event-Kontaktattributen ausblenden (siehe app/domain/kljb/hide_nickname)
+      Export::Vcf::Vcards.prepend Kljb::Export::Vcf::HideNickname
+      ApplicationSerializer.prepend Kljb::HideNickname::Serializer
+      Kljb::HideNickname::JsonApi.apply!
+      OidcClaimSetup.prepend Kljb::HideNickname::OidcClaims
+      Contactable::Address.prepend Kljb::HideNickname::Address
+      PeopleHelper.prepend Kljb::HideNickname::PeopleHelper
+      Event::ParticipationContactData.prepend Kljb::HideNickname::RequiredAttrs
+      Wizards::RegisterNewEventGuestWizard.prepend Kljb::HideNickname::RequiredAttrs
     end
 
     initializer "kljb.add_settings" do |_app|

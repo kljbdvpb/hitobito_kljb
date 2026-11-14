@@ -31,10 +31,10 @@ impersonate:
 
 # Absenderdomain per RAILS_MAIL_DOMAIN ueberschreibbar (wie im Core-settings.yml),
 # Fallback: post.kljb-paderborn.de.
-# Hinweis: "KLIB" im Anzeigenamen ist bewusst unveraendert (Fachentscheidung, kein Tippfehler-Fix).
+# Anzeigename "KLJB" (Fachentscheidung; der frueher uebernommene Tippfehler "KLIB" ist korrigiert).
 <% mail_domain = ENV['RAILS_MAIL_DOMAIN'].presence || 'post.kljb-paderborn.de' %>
 email:
-  sender: <%= "KLIB Mitgliederdatenbank <noreply@#{mail_domain}>" %>
+  sender: <%= "KLJB Mitgliederdatenbank <noreply@#{mail_domain}>" %>
 
 currency:
   unit: EUR
