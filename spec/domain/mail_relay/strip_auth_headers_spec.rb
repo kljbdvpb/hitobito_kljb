@@ -95,12 +95,20 @@ describe Kljb::MailRelay::StripAuthHeaders do
     expect(relay.message.header.fields.map(&:name).grep(/dspam/i)).to be_empty
   end
 
+  # strip! entfernt X-DSPAM nur mit dspam: true (im Legacy-Stack macht das der Core),
+  # stripped_fields enthaelt aber x-dspam.
   it ".strip! removes duplicate and mixed-case fields" do
-    described_class.strip!(message)
+    described_class.strip!(message, dspam: true)
 
     expect(stripped_fields(message)).to be_empty
     expect(message.header.fields.map(&:name).grep(/\Adkim-signature\z/i)).to be_empty
     expect_kept_headers(message)
+  end
+
+  it ".strip! keeps X-DSPAM without dspam: true (Core entfernt es selbst)" do
+    described_class.strip!(message)
+
+    expect(message.header.fields.map(&:name).grep(/dspam/i)).not_to be_empty
   end
 end
 
