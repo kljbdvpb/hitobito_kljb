@@ -1,0 +1,29 @@
+-#  Copyright (c) 2021, Katholische Landjugendbewegung Paderborn. This file is part of
+-#  hitobito_kljb and licensed under the Affero General Public License version 3
+-#  or later. See the COPYING file at the top-level directory or at
+-#  https://github.com/hitobito/hitobito_kljb.
+
+-# Wagon-Override von people/_contact_data (Basis: Core 2.11.5, gleiche Stelle im Profil).
+-# Fachentscheidung: im Personenprofil keine Postanschrift und kein Kartenlink.
+-# Abweichungen zum Core:
+-#   * .contact-marker (link_to_address, OpenStreetMap-Kartenlink) entfaellt
+-#   * contactable/contact_data bekommt einen contact-Wrapper ohne Postanschrift
+-# Das Partial kann nicht kleiner ueberschrieben werden: Marker und Aufruf stehen in
+-# derselben Core-Datei. Bei Core-Updates diese Datei mit dem Core-Original abgleichen.
+
+.contactable.well
+  .profil-big.float-end
+    %button.border-0.p-0.m-0.bg-transparent
+      .crop-to-square
+        = image_tag(upload_url(person, :picture, size: '72x72', default: 'profil'), alt: t(".profile_picture_alt"), size: '72x72')
+  .profile-image-overlay
+    .img
+      .crop-to-square
+        = image_tag(upload_url(person, :picture, size: '512x512', default: 'profil'), size: '512x512')
+
+  = render 'contactable/contact_data',
+           contactable: person,
+           contact: Kljb::PersonProfileContact.new(person),
+           only_public: only_public
+
+  = render "people/household_attrs", person: person

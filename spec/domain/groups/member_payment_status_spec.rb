@@ -176,27 +176,34 @@ describe Groups::MemberPaymentStatus do
   end
 
   describe 'cutoff_date' do
-    it 'is the last day of august' do
+    it 'is the first day of september' do
       travel_to '2021-12-14' do
-        expect(described_class.cutoff_date).to eq Date.parse('2021-08-31')
+        expect(described_class.cutoff_date).to eq Date.parse('2021-09-01')
       end
     end
 
     it 'is never in the future' do
-      travel_to '2021-08-30' do
-        expect(described_class.cutoff_date).to eq Date.parse('2020-08-31')
+      travel_to '2021-08-31' do
+        expect(described_class.cutoff_date).to eq Date.parse('2020-09-01')
       end
     end
 
     it 'may be today' do
-      travel_to '2021-08-31' do
-        expect(described_class.cutoff_date).to eq Date.parse('2021-08-31')
+      travel_to '2021-09-01' do
+        expect(described_class.cutoff_date).to eq Date.parse('2021-09-01')
       end
     end
 
     it 'may be in the past' do
-      travel_to '2021-09-01' do
-        expect(described_class.cutoff_date).to eq Date.parse('2021-08-31')
+      travel_to '2021-09-02' do
+        expect(described_class.cutoff_date).to eq Date.parse('2021-09-01')
+      end
+    end
+
+    it 'is the reference date of the payment status job' do
+      expect(described_class::AGE_CUTOFF_DATE).to eq [9, 1]
+      travel_to '2021-03-01' do
+        expect(MemberPaymentStatusJob.new.send(:next_run).to_date).to eq Date.parse('2021-09-01')
       end
     end
   end

@@ -14,8 +14,6 @@ class Group::Ortsgruppe < ::Group
     Group::OrtsgruppeLeiterrunde
   ]
 
-  self.possible_children = [Group::OrtsgruppeAg]
-
   children(*default_children)
 
   class Foerdermitglied < ::Role
