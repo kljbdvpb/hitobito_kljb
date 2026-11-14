@@ -32,13 +32,15 @@ module HitobitoKljb
       Export::Tabular::Groups::List.prepend Kljb::Export::Tabular::Groups::List
       Export::Tabular::People::PeopleAddress.prepend Kljb::Export::Tabular::People::HideNickname
       Export::Tabular::People::PeopleFull.prepend Kljb::Export::Tabular::People::HideNickname
-      Wizards::RegisterNewEventGuestWizard.prepend Kljb::HideNickname::RequiredAttrs
-      Event::ParticipationContactData.prepend Kljb::HideNickname::RequiredAttrs
-      PeopleHelper.prepend Kljb::HideNickname::PeopleHelper
-      Contactable::Address.prepend Kljb::HideNickname::Address
-      Kljb::HideNickname::JsonApi.apply!
-      ApplicationSerializer.prepend Kljb::HideNickname::Serializer
+      # Spitzname auch in vCard, API (Legacy-REST, JSON:API), Etiketten, Listenkoepfen und
+      # Event-Kontaktattributen ausblenden (siehe app/domain/kljb/hide_nickname)
       Export::Vcf::Vcards.prepend Kljb::Export::Vcf::HideNickname
+      ApplicationSerializer.prepend Kljb::HideNickname::Serializer
+      Kljb::HideNickname::JsonApi.apply!
+      Contactable::Address.prepend Kljb::HideNickname::Address
+      PeopleHelper.prepend Kljb::HideNickname::PeopleHelper
+      Event::ParticipationContactData.prepend Kljb::HideNickname::RequiredAttrs
+      Wizards::RegisterNewEventGuestWizard.prepend Kljb::HideNickname::RequiredAttrs
     end
 
     initializer "kljb.add_settings" do |_app|
