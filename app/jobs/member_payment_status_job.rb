@@ -15,6 +15,7 @@ class MemberPaymentStatusJob < RecurringJob
   end
 
   def next_run
-    Time.new(Time.zone.now.year.succ, 8, 31, 5, 0).in_time_zone
+    # Naechster Lauf am Stichtag 01.09., 05:00 (Fachentscheidung, vorher 31.08.)
+    Time.new(Time.zone.now.year.succ, 9, 1, 5, 0).in_time_zone
   end
 end

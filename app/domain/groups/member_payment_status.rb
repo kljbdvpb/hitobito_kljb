@@ -7,7 +7,8 @@
 
 module Groups
   class MemberPaymentStatus
-    AGE_CUTOFF_DATE = [8, 31].freeze
+    # Stichtag fuer das Alter (Mitgliedsbeitrag): 01.09. (Fachentscheidung, vorher 31.08.)
+    AGE_CUTOFF_DATE = [9, 1].freeze
 
     class << self
       def cutoff_date
