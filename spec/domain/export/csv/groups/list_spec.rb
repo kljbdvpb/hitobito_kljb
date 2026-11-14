@@ -35,8 +35,9 @@ describe Export::Tabular::Groups::List do
                 'Link zu Nextcloud',
                 'Strasse',
                 'Hausnummer',
-                'zusätzliche Adresszeile',
+                'c/o-Adresse',
                 'Postfach',
+                'Sprache',
                 'normale Mitglieder',
                 'vergünstigte Mitglieder',
                 'Telefonnummern',
@@ -60,7 +61,7 @@ describe Export::Tabular::Groups::List do
     its(['Kurzname']) { should == group.short_name }
     its(['Gruppentyp']) { should == 'Regionalverband' }
     its(['Haupt-E-Mail']) { should == group.email }
-    its(['zusätzliche Adressezeile']) { should == group.address_care_of }
+    its(['c/o-Adresse']) { should == group.address_care_of }
     its(['Strasse']) { should == group.street }
     its(['Hausnummer']) { should == group.housenumber }
     its(['Postfach']) { should == group.postbox }
