@@ -35,7 +35,8 @@ describe PersonResource, type: :resource do
 end
 
 # Review M2: nickname weder filter-, sortier- noch schreibbar (kein Such-Orakel).
-describe PersonResource, 'nickname restrictions' do
+# type: :config, damit der Core-Resource-Helper (people(:top_leader)) nicht greift; reine Konfigurationspruefung.
+describe PersonResource, 'nickname restrictions', type: :config do
   it 'ist nicht schreibbar' do
     expect(PersonResource.config[:attributes][:nickname][:writable]).to be false
   end
