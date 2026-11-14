@@ -7,7 +7,7 @@
 
 class Group::Regionalverband < ::Group
   self.layer = true
-self.possible_children = [Group::RegionalverbandAg]
+  self.possible_children = [Group::RegionalverbandAg]
   self.default_children = [
     Group::RegionalverbandVorstand,
     Group::RegionalverbandKontakte

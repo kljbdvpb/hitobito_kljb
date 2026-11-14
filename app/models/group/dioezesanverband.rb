@@ -7,7 +7,7 @@
 
 class Group::Dioezesanverband < ::Group
   self.layer = true
-self.possible_children = [Group::DioezesanverbandAg]
+  self.possible_children = [Group::DioezesanverbandAg]
   self.default_children = [
     Group::DioezesanverbandVorstand,
     Group::DioezesanverbandBuero,
