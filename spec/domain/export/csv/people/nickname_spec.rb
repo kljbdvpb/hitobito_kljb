@@ -26,9 +26,13 @@ describe 'Spitzname ausblenden' do
     expect(Person.only_public_data.find(person.id).person_name).not_to include('Spitzi')
   end
 
-  [Export::Tabular::People::PeopleAddress, Export::Tabular::People::PeopleFull].each do |klass|
-    it "#{klass.name.demodulize}-CSV mit only_public_data wirft nicht und enthaelt keinen Spitznamen" do
-      list = Person.only_public_data.where(id: person.id)
+  {
+    Export::Tabular::People::PeopleAddress => -> (id) { Person.only_public_data.where(id: id) },
+    # wie Core-Export (people_export_job.rb full_entries): select("people.*")
+    Export::Tabular::People::PeopleFull => -> (id) { Person.where(id: id).select("people.*") }
+  }.each do |klass, scope|
+    it "#{klass.name.demodulize}-CSV wirft nicht und enthaelt keinen Spitznamen" do
+      list = scope.call(person.id)
       data = nil
       expect { data = klass.csv(list) }.not_to raise_error
       csv = CSV.parse(data.sub(Export::Csv::UTF8_BOM, ''), headers: true,
