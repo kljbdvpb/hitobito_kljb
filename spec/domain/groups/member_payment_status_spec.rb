@@ -203,7 +203,7 @@ describe Groups::MemberPaymentStatus do
     it 'is the reference date of the payment status job' do
       expect(described_class::AGE_CUTOFF_DATE).to eq [9, 1]
       travel_to '2021-03-01' do
-        expect(MemberPaymentStatusJob.new.send(:next_run).to_date).to eq Date.parse('2022-09-01')
+        expect(MemberPaymentStatusJob.new.send(:next_run).to_date).to eq Date.parse('2021-09-01')
       end
     end
   end
