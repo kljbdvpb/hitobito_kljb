@@ -19,4 +19,4 @@ leader:
 member:
   person: member
   group: root
-  type: Group::Dioezesanverband::Fördermitglied
+  type: Group::Dioezesanverband::Foerdermitglied

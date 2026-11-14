@@ -3,14 +3,18 @@ name: Specs gegen Core 2.11.5
 # Eigener Lauf für den Portierungs-Branch. Das Upstream-Reusable-Workflow ist auf
 # die Organisation hitobito/ festgelegt und wird hier nicht verwendet.
 #
-# Ablauf wie im Upstream-CI: Der Core ist das Arbeitsverzeichnis, der Wagon liegt
-# daneben (hitobito_kljb/) und wird über Wagonfile.ci eingebunden.
+# Ablauf wie im Upstream-CI (hitobito/.github/workflows/wagon-tests.yml, Core 2.11.5):
+# Der Core liegt neben dem Wagon (hitobito/ und hitobito_kljb/), wird über Wagonfile.ci
+# eingebunden, die Specs laufen aber mit dem WAGON als Arbeitsverzeichnis.
+# Das ist wichtig: Der Wagon-spec_helper setzt APP_ROOT (app_root.rb), bevor der
+# Core-spec_helper geladen wird. Ohne APP_ROOT ruft spec/support/group/0_base.rb des
+# Cores Group.reset_types! auf und ersetzt alle Wagon-Gruppen/-Rollen durch Testgruppen.
 # Die Datenbank-Zugangsdaten sind reine CI-Testwerte für den Postgres-Dienst
 # dieses Laufs, keine echten Zugangsdaten.
 
 on:
   push:
-    branches: [update/2.11.5]
+    branches: [main, 'update/**', 'ci/**']
     paths-ignore: ['**.md']
   pull_request:
     paths-ignore: ['**.md']
@@ -51,6 +55,10 @@ jobs:
       RAILS_DB_PASSWORD: hitobito
       RAILS_DB_NAME: hitobito_test
       RAILS_TEST_DB_NAME: hitobito_test
+      # Core config/environments/test.rb: maintain_test_schema = false, sonst laedt
+      # ActiveRecord::Migration.maintain_test_schema! das Core-db/schema.rb neu und
+      # verwirft die per wagon:migrate angelegten Spalten (members_normal/_discounted).
+      DISABLE_TEST_SCHEMA_MAINTENANCE: "true"
     steps:
       - name: Wagon auschecken
         uses: actions/checkout@v6
@@ -60,8 +68,8 @@ jobs:
       - name: Core 2.11.5 auschecken
         uses: actions/checkout@v6
         with:
-          repository: kljbdvpb/hitobito
-          ref: upstream-2.11.5
+          repository: hitobito/hitobito
+          ref: 2.11.5
           path: hitobito
           fetch-depth: 1
 
@@ -76,7 +84,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3.13'
-          bundler: '4.0.13'
+          bundler: '4.0.22'
           working-directory: hitobito
 
       - name: Gems installieren (Lockfile darf sich durch Wagonfile.ci ändern)
@@ -92,18 +100,21 @@ jobs:
         run: |
           bundle exec rake db:create db:schema:load wagon:migrate
 
-      - name: Diagnose Testdatenbank (vor Specs)
+      - name: Diagnose Testumgebung (vor Specs)
+        # Belegt Datenbank und Wagon-Spalten, bevor rspec startet. (Rollentypen lassen sich
+        # hier nicht belegen: Group.reset_types! aus core spec/support/group/0_base.rb
+        # laeuft erst unter rspec.)
         working-directory: hitobito
         env:
           RAILS_ENV: test
         run: |
-          bundle exec rails runner 'puts "DB=#{ActiveRecord::Base.connection.current_database}"; puts "COLS=#{Group.column_names.grep(/members/).inspect}"; puts "MIGS=#{ActiveRecord::Base.connection.select_values("SELECT version FROM schema_migrations WHERE version LIKE \x272021121%\x27").inspect}"'
+          bundle exec rails runner 'puts "DB=#{ActiveRecord::Base.connection.current_database}"; puts "COLS=#{Group.column_names.grep(/members/).inspect}";'
 
       - name: Specs des Wagons ausführen
-        # Aus dem Core-Verzeichnis. Der Wagon-spec_helper wird explizit vorab geladen,
-        # damit sein Fixture-Pfad gilt (sonst greift der Core-spec_helper).
-        working-directory: hitobito
+        # Wie Upstream: Arbeitsverzeichnis = Wagon, Gemfile = Core (Wagonfile.ci bindet den
+        # Wagon ein). rspec findet ./spec/spec_helper.rb des Wagons über den Standard-Loadpath.
+        working-directory: hitobito_kljb
         env:
           RAILS_ENV: test
-        # Erst der Core-spec_helper (lädt rspec/rails), dann der Wagon-spec_helper (setzt Fixture-Pfad).
-        run: bundle exec rspec -r ./spec/spec_helper.rb -r ../hitobito_kljb/spec/spec_helper.rb ../hitobito_kljb/spec
+          BUNDLE_GEMFILE: ${{ github.workspace }}/hitobito/Gemfile
+        run: bundle exec rspec spec
