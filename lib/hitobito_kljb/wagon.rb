@@ -32,6 +32,7 @@ module HitobitoKljb
       Export::Tabular::Groups::List.prepend Kljb::Export::Tabular::Groups::List
       Export::Tabular::People::PeopleAddress.prepend Kljb::Export::Tabular::People::HideNickname
       Export::Tabular::People::PeopleFull.prepend Kljb::Export::Tabular::People::HideNickname
+      ApplicationSerializer.prepend Kljb::HideNickname::Serializer
       Export::Vcf::Vcards.prepend Kljb::Export::Vcf::HideNickname
     end
 
