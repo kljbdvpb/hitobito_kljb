@@ -37,6 +37,7 @@ module HitobitoKljb
       Export::Vcf::Vcards.prepend Kljb::Export::Vcf::HideNickname
       ApplicationSerializer.prepend Kljb::HideNickname::Serializer
       Kljb::HideNickname::JsonApi.apply!
+      OidcClaimSetup.prepend Kljb::HideNickname::OidcClaims
       Contactable::Address.prepend Kljb::HideNickname::Address
       PeopleHelper.prepend Kljb::HideNickname::PeopleHelper
       Event::ParticipationContactData.prepend Kljb::HideNickname::RequiredAttrs
