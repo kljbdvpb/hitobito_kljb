@@ -31,7 +31,7 @@ of Kljb.
     * Fördermitglied: []
   * Vorstand
     * Vorsitz: [:layer_and_below_full, :contact_data]
-    * Geist: [:layer_and_below_full, :contact_data]
+    * Geistliche Verbandsleitung (Geist): [:layer_and_below_full, :contact_data]
     * Finanzverantwortliche*r: [:layer_and_below_full, :contact_data]
     * Mitglied: [:layer_full, :layer_and_below_read, :contact_data]
   * AG
@@ -45,7 +45,7 @@ of Kljb.
     * Mitglied: [:group_read]
   * Vorstand
     * Vorsitz: [:layer_and_below_full, :contact_data]
-    * Geist: [:layer_and_below_full, :contact_data]
+    * Geistliche Verbandsleitung (Geist): [:layer_and_below_full, :contact_data]
     * Finanzverantwortliche*r: [:layer_and_below_full, :contact_data]
     * Mitglied: [:layer_full, :layer_and_below_read, :contact_data]
   * AG

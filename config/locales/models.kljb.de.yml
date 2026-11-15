@@ -59,78 +59,113 @@ de:
 
       group/dioezesanverband/foerdermitglied:
         one: Fördermitglied
+        other: Fördermitglieder
       group/dioezesanverband/it_support:
         one: IT-Support
+        other: IT-Support
       group/dioezesanverband_vorstand/seelsorger:
         one: Seelsorger*in
+        other: Seelsorger*innen
       group/dioezesanverband_vorstand/vorstand:
         one: Vorstand
+        other: Vorstände
       group/dioezesanverband_vorstand/beratend:
         one: Beratend
+        other: Beratende
       group/dioezesanverband_buero/verwaltungsleitung:
         one: Verwaltungsleitung
+        other: Verwaltungsleitungen
       group/dioezesanverband_buero/referent:
         one: Referent*in
+        other: Referent*innen
       group/dioezesanverband_buero/sekretariat:
         one: Sekretariat
+        other: Sekretariate
       group/dioezesanverband_buero/mitarbeiter:
         one: Mitarbeiter*in
+        other: Mitarbeiter*innen
       group/dioezesanverband_ag/sprecher:
         one: Sprecher*in
+        other: Sprecher*innen
       group/dioezesanverband_ag/mitglied:
         one: Mitglied
+        other: Mitglieder
       group/dioezesanverband_kontakte/kontakt:
         one: Kontakt
+        other: Kontakte
       group/dioezesanverband_kontakte/teamer:
         one: Teamer*in
+        other: Teamer*innen
 
       group/regionalverband/foerdermitglied:
         one: Fördermitglied
+        other: Fördermitglieder
       group/regionalverband_vorstand/vorsitz:
         one: Vorsitz
+        other: Vorsitze
       group/regionalverband_vorstand/geist:
-        one: Geist
+        one: Geistliche Verbandsleitung
+        other: Geistliche Verbandsleitungen
       group/regionalverband_vorstand/finanzverantwortlicher:
         one: Finanzverantwortliche*r
+        other: Finanzverantwortliche
       group/regionalverband_vorstand/mitglied:
         one: Mitglied
+        other: Mitglieder
       group/regionalverband_ag/sprecher:
         one: Sprecher*in
+        other: Sprecher*innen
       group/regionalverband_ag/mitglied:
         one: Mitglied
+        other: Mitglieder
       group/regionalverband_kontakte/kontakt:
         one: Kontakt
+        other: Kontakte
 
       group/ortsgruppe/foerdermitglied:
         one: Fördermitglied
+        other: Fördermitglieder
       group/ortsgruppe/mitglied:
         one: Mitglied
+        other: Mitglieder
       group/ortsgruppe_vorstand/vorsitz:
         one: Vorsitz
+        other: Vorsitze
       group/ortsgruppe_vorstand/geist:
-        one: Geist
+        one: Geistliche Verbandsleitung
+        other: Geistliche Verbandsleitungen
       group/ortsgruppe_vorstand/finanzverantwortlicher:
         one: Finanzverantwortliche*r
+        other: Finanzverantwortliche
       group/ortsgruppe_vorstand/mitglied:
         one: Mitglied
+        other: Mitglieder
       group/ortsgruppe_ag/sprecher:
         one: Sprecher*in
+        other: Sprecher*innen
       group/ortsgruppe_ag/mitglied:
         one: Mitglied
+        other: Mitglieder
       group/ortsgruppe_kontakte/kontakt:
         one: Kontakt
+        other: Kontakte
       group/ortsgruppe_leiterrunde/leiter:
         one: Leiter*in
+        other: Leiter*innen
 
       ### EVENTS
       event/role/teamer:
         one: Teamer*in
+        other: Teamer*innen
       event/role/leader:
         one: Leitung
+        other: Leitungen
       event/role/helper:
         one: Helfer*in
+        other: Helfer*innen
       event/role/participant:
         one: Teilnehmer*in
+        other: Teilnehmer*innen
 
     attributes:
       group:
