@@ -16,6 +16,7 @@ describe FullTextController, type: :controller do
     sign_in(people(:admin))
     stub_search(SearchStrategies::PersonSearch, Person.where(id: person_ids))
     stub_search(SearchStrategies::GroupSearch, Group.where(id: group_ids))
+    stub_search(SearchStrategies::EventSearch, Event.none)
   end
 
   def stub_search(klass, scope)
