@@ -29,6 +29,9 @@ module HitobitoKljb
 
       Event::ParticipationContactData.include Kljb::Event::ParticipationContactData
 
+      # Quicksearch (/full.json): Gruppen vor Personen
+      FullTextController.prepend Kljb::QuicksearchGroupsFirst
+
       Export::Tabular::Groups::List.prepend Kljb::Export::Tabular::Groups::List
       Export::Tabular::People::PeopleAddress.prepend Kljb::Export::Tabular::People::HideNickname
       Export::Tabular::People::PeopleFull.prepend Kljb::Export::Tabular::People::HideNickname
