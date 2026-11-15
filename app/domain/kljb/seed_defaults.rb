@@ -28,7 +28,7 @@ module Kljb
     end
 
     def run
-      before = CustomContent.count
+      before = ::CustomContent.count
       soll = seed_custom_contents
       seed_order_tables
       result(before, soll)
@@ -61,12 +61,12 @@ module Kljb
 
     def result(before, soll)
       Result.new(
-        custom_contents_before: before, custom_contents_after: CustomContent.count,
+        custom_contents_before: before, custom_contents_after: ::CustomContent.count,
         custom_contents_soll: soll,
         group_type_orders: GroupTypeOrder.count, role_type_orders: RoleTypeOrder.count,
         event_role_type_orders: EventRoleTypeOrder.count,
-        soll_group_types: Group.all_types.size, soll_role_types: Role.all_types.size,
-        soll_event_role_types: Event.all_types.sum { |t| t.role_types.size }
+        soll_group_types: ::Group.all_types.size, soll_role_types: ::Role.all_types.size,
+        soll_event_role_types: ::Event.all_types.sum { |t| t.role_types.size }
       )
     end
   end
