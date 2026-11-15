@@ -22,21 +22,42 @@ describe "Rollen-Labels (Plural)" do
     expect(event_role_types).to include(Event::Role::Teamer, Event::Role::Leader)
   end
 
-  it "liefert fuer jede Gruppenrolle ein Plural-Label ohne Exception, das vom Singular abweicht" do
-    group_role_types.each do |type|
-      plural = nil
-      expect { plural = type.label_plural }.not_to raise_error, "#{type.sti_name} ohne other:"
-      expect(plural).to be_present
-      expect(plural).not_to eq(type.label), "#{type.sti_name}: Plural == Singular (#{plural})"
-    end
+  # Rollen, deren Label im Wagon-Locale definiert ist (Core-Rollen wie Event::Role::AssistantLeader
+  # haben im Core-Locale teils identische Formen und sind nicht Gegenstand dieses Wagons).
+  let(:wagon_keys) do
+    file = HitobitoKljb::Wagon.root.join("config/locales/models.kljb.de.yml")
+    YAML.load_file(file).dig("de", "activerecord", "models").keys
   end
 
-  it "liefert fuer jede Event-Rolle ein Plural-Label ohne Exception, das vom Singular abweicht" do
-    event_role_types.each do |type|
-      plural = nil
-      expect { plural = type.label_plural }.not_to raise_error, "#{type.sti_name} ohne other:"
-      expect(plural).to be_present
-      expect(plural).not_to eq(type.label), "#{type.sti_name}: Plural == Singular (#{plural})"
+  def check_plural(types)
+    errors = []
+    types.each do |type|
+      plural = begin
+        type.label_plural
+      rescue => e
+        errors << "#{type.sti_name}: #{e.class}"
+        next
+      end
+      errors << "#{type.sti_name}: leer" if plural.blank?
+      if wagon_keys.include?(type.model_name.i18n_key.to_s) && plural == type.label
+        errors << "#{type.sti_name}: Plural == Singular (#{plural})"
+      end
     end
+    errors
+  end
+
+  it "liefert fuer jede Gruppenrolle ein Plural-Label ohne Exception (Wagon-Rollen: != Singular)" do
+    expect(check_plural(group_role_types)).to eq([])
+  end
+
+  it "liefert fuer jede Event-Rolle ein Plural-Label ohne Exception (Wagon-Rollen: != Singular)" do
+    expect(check_plural(event_role_types)).to eq([])
+  end
+
+  it "definiert fuer jede Rolle im Wagon-Locale one und other" do
+    models = YAML.load_file(HitobitoKljb::Wagon.root.join("config/locales/models.kljb.de.yml"))
+      .dig("de", "activerecord", "models")
+    missing = models.select { |_, v| v.is_a?(Hash) && v["one"] && !v["other"] }.keys
+    expect(missing).to eq([])
   end
 end
