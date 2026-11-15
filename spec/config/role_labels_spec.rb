@@ -29,6 +29,12 @@ describe "Rollen-Labels (Plural)" do
     YAML.load_file(file).dig("de", "activerecord", "models").keys
   end
 
+  # Wagon-Labels, deren Plural bewusst gleich dem Singular ist (Eigenname/Fachbegriff ohne
+  # sinnvolle Pluralform). Neue Eintraege nur mit Begruendung.
+  let(:plural_equals_singular_allowed) do
+    %w[group/dioezesanverband/it_support] # "IT-Support" bleibt im Plural unveraendert
+  end
+
   def check_plural(types)
     errors = []
     types.each do |type|
@@ -39,7 +45,8 @@ describe "Rollen-Labels (Plural)" do
         next
       end
       errors << "#{type.sti_name}: leer" if plural.blank?
-      if wagon_keys.include?(type.model_name.i18n_key.to_s) && plural == type.label
+      key = type.model_name.i18n_key.to_s
+      if wagon_keys.include?(key) && !plural_equals_singular_allowed.include?(key) && plural == type.label
         errors << "#{type.sti_name}: Plural == Singular (#{plural})"
       end
     end
