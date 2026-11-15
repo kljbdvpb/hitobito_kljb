@@ -104,8 +104,8 @@ de:
         one: Vorsitz
         other: Vorsitze
       group/regionalverband_vorstand/geist:
-        one: Geist
-        other: Geister
+        one: Geistliche Verbandsleitung
+        other: Geistliche Verbandsleitungen
       group/regionalverband_vorstand/finanzverantwortlicher:
         one: Finanzverantwortliche*r
         other: Finanzverantwortliche
@@ -132,8 +132,8 @@ de:
         one: Vorsitz
         other: Vorsitze
       group/ortsgruppe_vorstand/geist:
-        one: Geist
-        other: Geister
+        one: Geistliche Verbandsleitung
+        other: Geistliche Verbandsleitungen
       group/ortsgruppe_vorstand/finanzverantwortlicher:
         one: Finanzverantwortliche*r
         other: Finanzverantwortliche
