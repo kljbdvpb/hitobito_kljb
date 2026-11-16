@@ -160,6 +160,9 @@ de:
       event/role/leader:
         one: Leitung
         other: Leitungen
+      event/role/assistant_leader:
+        one: Co-Leitung
+        other: Co-Leitungen
       event/role/helper:
         one: Helfer*in
         other: Helfer*innen
