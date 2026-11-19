@@ -40,6 +40,11 @@ describe Export::Tabular::Groups::List do
                 'Sprache',
                 'normale Mitglieder',
                 'vergünstigte Mitglieder',
+                'Mitglieder gesamt (normal + vergünstigt)',
+                'Mitglieder unter 14 Jahre',
+                'Mitglieder ab 14 Jahre',
+                'Mitglieder bis einschließlich 27 Jahre',
+                'Mitglieder ohne Geburtsdatum',
                 'Telefonnummern',
                 'Anzahl Mitglieder',
                 'Social Media']
@@ -48,8 +53,8 @@ describe Export::Tabular::Groups::List do
     expect(subject.headers).to eq expected
   end
 
-  it 'has 16 items' do
-    expect(subject.size).to eq(16)
+  it 'has 16 groups plus the sum row' do
+    expect(subject.size).to eq(17)
   end
 
   context 'first row' do
@@ -87,5 +92,47 @@ describe Export::Tabular::Groups::List do
     its(['Gruppentyp']) { should == 'Ortsgruppe' }
     its(['normale Mitglieder']) { should == '23' }
     its(['vergünstigte Mitglieder']) { should == '7' }
+    its(['Mitglieder gesamt (normal + vergünstigt)']) { should == '30' }
+    its(['Mitglieder ab 14 Jahre']) { should be_blank }
+  end
+
+  context 'sum row' do
+    let(:paderborn) { groups(:paderborn) }
+    let(:bonn) { groups(:bonn) }
+    let(:sum_row) { csv[csv.size - 1] }
+
+    before do
+      paderborn.update!(members_normal: 23, members_discounted: 7, members_under_14: 10,
+                        members_from_14: 18, members_up_to_27: 20, members_without_birthday: 2)
+      bonn.update!(members_normal: 5, members_discounted: nil, members_under_14: 1,
+                   members_from_14: 4, members_up_to_27: 3, members_without_birthday: 0)
+    end
+
+    it 'is the last row and labelled' do
+      expect(sum_row['Name']).to eq 'Summe'
+      expect(sum_row['Id']).to be_blank
+    end
+
+    it 'adds up all count columns over all groups, blank counts as 0' do
+      expect(sum_row['normale Mitglieder']).to eq '28'
+      expect(sum_row['vergünstigte Mitglieder']).to eq '7'
+      expect(sum_row['Mitglieder gesamt (normal + vergünstigt)']).to eq '35'
+      expect(sum_row['Mitglieder unter 14 Jahre']).to eq '11'
+      expect(sum_row['Mitglieder ab 14 Jahre']).to eq '22'
+      expect(sum_row['Mitglieder bis einschließlich 27 Jahre']).to eq '23'
+      expect(sum_row['Mitglieder ohne Geburtsdatum']).to eq '2'
+    end
+
+    it 'age groups add up to the total' do
+      expect(sum_row['Mitglieder unter 14 Jahre'].to_i + sum_row['Mitglieder ab 14 Jahre'].to_i +
+             sum_row['Mitglieder ohne Geburtsdatum'].to_i)
+        .to eq sum_row['Mitglieder gesamt (normal + vergünstigt)'].to_i
+    end
+
+    it 'is also the last row for xlsx rows' do
+      rows = described_class.new(list).data_rows(:xlsx).to_a
+      expect(rows.size).to eq 17
+      expect(rows.last[described_class.new(list).attributes.index(:name)]).to eq 'Summe'
+    end
   end
 end
