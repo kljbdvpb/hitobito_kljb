@@ -59,5 +59,12 @@ describe MemberPaymentStatusJob do
       expect(bonn.reload.members_normal).to eq 99
       expect(bonn.members_discounted).to eq 3
     end
+
+    it 'zaehlt geloeschte Ortsgruppen nicht' do
+      bonn = groups(:bonn)
+      bonn.update_columns(deleted_at: Time.zone.now, members_normal: 42)
+      described_class.new.send(:perform_internal)
+      expect(bonn.reload.members_normal).to eq 42
+    end
   end
 end

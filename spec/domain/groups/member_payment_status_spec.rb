@@ -198,7 +198,7 @@ describe Groups::MemberPaymentStatus do
       Fabricate(:family_member, person: tom, other: peter, kind: 'sibling')
       Fabricate('Group::Ortsgruppe::Mitglied', person: tom, group: group)
       Fabricate('Group::OrtsgruppeVorstand::Mitglied', person: olaf,
-                                                                group: groups(:paderborn_vorstand))
+                                                       group: groups(:paderborn_vorstand))
       Fabricate('Group::Ortsgruppe::Mitglied', person: peter, group: group)
       [tom, olaf, peter].each(&:reload)
 
@@ -208,16 +208,17 @@ describe Groups::MemberPaymentStatus do
     end
   end
 
-  context 'with three siblings in the same group' do
-    it 'discounts exactly the youngest' do
-      kids = [20, 15, 13].map { |age| Fabricate(:person, birthday: age.years.ago) }
-      Fabricate(:family_member, person: kids[0], other: kids[1], kind: 'sibling')
-      Fabricate(:family_member, person: kids[0], other: kids[2], kind: 'sibling')
+  context 'with a sibling without birthday' do
+    it 'ranks the sibling last and does not displace the youngest known child' do
+      kids = [20.years.ago, 15.years.ago, nil, 13.years.ago].map do |b|
+        Fabricate(:person, birthday: b)
+      end
+      kids.drop(1).each { |k| Fabricate(:family_member, person: kids[0], other: k, kind: 'sibling') }
       kids.each { |k| Fabricate('Group::Ortsgruppe::Mitglied', person: k, group: group) }
       kids.each(&:reload)
 
       paderborn_status.update
-      expect(group.members_normal).to eq 2
+      expect(group.members_normal).to eq 3
       expect(group.members_discounted).to eq 1
     end
   end

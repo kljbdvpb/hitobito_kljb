@@ -120,10 +120,11 @@ module Groups
     # Geschwisterrabatt (Nutzerentscheidung 2026-11-19): fuer "drittes und weiteres Kind" zaehlen
     # nur Geschwister (gleicher family_key), die selbst ein aktives Mitglied desselben Layers
     # sind. Geschwister in anderen Ortsgruppen oder ohne Mitgliedsrolle werden nicht gezaehlt.
-    # Reihenfolge nach Geburtstag, dann die ab dem dritten Kind am Stichtag Minderjaehrigen.
+    # Reihenfolge nach Geburtstag (explizit NULLS LAST: Geschwister ohne Geburtsdatum zaehlen
+    # als Geschwister, stehen aber hinten und verdraengen niemanden), dann die ab dem dritten Kind am Stichtag Minderjaehrigen.
     def underage_members_with_two_siblings
       layer_members = Person.where(id: all_members_of_layer.select(:id))
-        .where.not(family_key: nil).order(:family_key, :birthday, :id)
+        .where.not(family_key: nil).order(:family_key, ::Arel.sql("people.birthday ASC NULLS LAST"), :id)
 
       layer_members.group_by(&:family_key).flat_map { |_key, family|
         family.drop(2).select { |person| person.underage?(self.class.cutoff_date) }
