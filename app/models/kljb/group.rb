@@ -14,5 +14,13 @@ module Kljb::Group
     # self.superior_attributes = [:bank_account]
 
     root_types Group::Dioezesanverband
+
+    # Anlaesse und Kurse sind in der KLJB-Instanz abgeschaltet (Nutzerentscheidung
+    # 2026-11-19, docs/webtest-befunde-3.md). Ohne Event-Typen blendet der Core den
+    # Gruppen-Reiter Anlaesse/Kurse aus (Sheet::Group), Group.course_types ist leer
+    # (Menue Kurse, Kursarten, Qualifikationsarten) und niemand darf Qualifikationen
+    # anlegen (QualificationAbility). Bestehende Daten bleiben in der DB.
+    # Gilt fuer alle Gruppentypen (Vererbung per class_attribute), keine Typ-Override noetig.
+    self.event_types = []
   end
 end

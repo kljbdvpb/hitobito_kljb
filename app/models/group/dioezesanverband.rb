@@ -8,12 +8,6 @@
 class Group::Dioezesanverband < ::Group
   self.layer = true
 
-  # Kurs-Typ aktivieren, damit Qualifikationen manuell bei Personen nachgetragen werden
-  # koennen (Core: QualificationAbility#in_course_layer_with verlangt einen Layer mit
-  # Event::Course in event_types; ebenso die Verwaltung der Qualifikationsarten).
-  # Nur der oberste Layer; Regionalverband und Ortsgruppe bleiben bei [Event].
-  self.event_types = [Event, Event::Course]
-
   self.possible_children = [Group::DioezesanverbandAg]
   self.default_children = [
     Group::DioezesanverbandVorstand,
