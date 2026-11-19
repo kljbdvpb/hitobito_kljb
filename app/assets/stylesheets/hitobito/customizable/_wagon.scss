@@ -27,3 +27,52 @@
     background-color: $nav-left-active-background
   }
 }
+
+
+// Quicksearch-Ausklappmenue (Core 2.11.5: autocomplete.js, modules/_typeahead.scss).
+// Der Core setzt fest width: 250px, weisser Hintergrund ohne Schatten, Hover in Core-Lila
+// (#925D97). Hier: breiter (mind. so breit wie das Suchfeld, max. Bildschirmbreite), Schatten,
+// abgerundet, Icons und Auswahl in KLJB-Farben. Nur fuer die Quicksearch, nicht fuer die
+// Entity-Typeaheads in Formularen. Gruppen/Personen/Events sind am Icon (fa-users/fa-user/
+// fa-calendar-alt) zu unterscheiden; der Trenner (20 Gedankenstriche) kommt aus dem Core.
+.quicksearch .autoComplete_wrapper {
+  ul {
+    width: 30rem;
+    min-width: 100%;
+    max-width: calc(100vw - 2rem);
+    max-height: 70vh;
+    overflow-y: auto;
+    margin: .25rem 0 0;
+    padding: 0;
+    border-color: $kljb-green;
+    border-radius: .375rem;
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15);
+    color: $text-color;
+
+    li {
+      padding: .5rem .75rem;
+      overflow-wrap: anywhere;
+
+      .fa {
+        display: inline-block;
+        width: 1.25em;
+        text-align: center;
+        color: $kljb-green;
+      }
+
+      &:last-child {
+        border-bottom: 0;
+      }
+    }
+
+    li:hover,
+    li[aria-selected="true"] {
+      background-color: $kljb-20percent-green;
+      color: $text-color;
+
+      mark {
+        color: $text-color;
+      }
+    }
+  }
+}

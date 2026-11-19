@@ -1,0 +1,22 @@
+-# KLJB-Override (docs/webtest-befunde-3.md): Anlaesse sind abgeschaltet, Core-Partial ohne Event-Abos.
+-#  Copyright (c) 2012-2013, Jungwacht Blauring Schweiz. This file is part of
+-#  hitobito and licensed under the Affero General Public License version 3
+-#  or later. See the COPYING file at the top-level directory or at
+-#  https://github.com/hitobito/hitobito.
+
+- title @mailing_list.to_s
+
+- if cannot?(:export_subscriptions, @mailing_list)
+  .alert.alert-info= t('.export_not_allowed')
+
+- if @mailing_list.subscribable_for_configured?
+  .alert.alert-info= t(".subscribable_mode_#{@mailing_list.subscribable_mode}_info").html_safe
+
+- if @person_add_requests.present?
+  = render 'person/add_requests/body_list'
+
+= render('subscriber/filter/show')
+
+= render('subs_table', title: [Group.model_name.human(count: 2), Role.model_name.human(count: 2)].join(' / '), subs: @group_subs, edit_controller: 'group')
+= render('subs_table', title: Person.model_name.human(count: 2), subs: @person_subs, paging_param: controller.class::INCLUDED_PAGING_PARAM)
+= render('subs_table', title: t('.excluded_people'), subs: @excluded_person_subs, paging_param: controller.class::EXCLUDED_PAGING_PARAM)

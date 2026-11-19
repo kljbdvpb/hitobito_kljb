@@ -7,10 +7,10 @@
 
 require "spec_helper"
 
-# Qualifikationen werden ohne Kursteilnahme direkt bei der Person erfasst
-# (QualificationsController, Personenseite). Das Recht dazu haengt im Core davon ab, dass
-# der Layer des Benutzers Event::Course in event_types hat. Im Wagon gilt das nur fuer
-# den Diözesanverband (Group::Dioezesanverband).
+# Kurse sind abgeschaltet (Nutzerentscheidung 2026-11-19, docs/webtest-befunde-3.md):
+# Kein Gruppentyp hat Event::Course in event_types, daher gibt es keinen Kurs-Layer und
+# der Core (QualificationAbility#in_course_layer_with) erlaubt niemandem, Qualifikationen
+# anzulegen oder zu loeschen. Bestehende Qualifikationen bleiben in der DB.
 describe QualificationAbility do
   let(:person) { Fabricate("Group::Ortsgruppe::Mitglied", group: groups(:paderborn)).person }
   let(:qualification) do
@@ -20,93 +20,42 @@ describe QualificationAbility do
 
   subject(:ability) { Ability.new(user.reload) }
 
-  it "Diözesanverband hat den Kurs-Typ, Regionalverband und Ortsgruppe nicht" do
-    expect(Group::Dioezesanverband.event_types).to eq([Event, Event::Course])
-    expect(Group::Regionalverband.event_types).to eq([Event])
-    expect(Group::Ortsgruppe.event_types).to eq([Event])
-    expect(Group.course_types).to include(Group::Dioezesanverband)
-    expect(Group.course_types).not_to include(Group::Ortsgruppe, Group::Regionalverband)
-  end
-
-  context "mit layer_and_below_full im Diözesanverband (IT-Support)" do
-    let(:user) { people(:admin) }
-
-    it "darf Qualifikation fuer Person in Ortsgruppe anlegen und loeschen (ohne Kurs)" do
-      expect(ability).to be_able_to(:create, qualification)
-      expect(ability).to be_able_to(:destroy, qualification)
+  it "kein Gruppentyp hat Event-Typen, es gibt keine Kurs-Layer" do
+    Group.all_types.each do |type|
+      expect(type.event_types).to eq([]), "#{type} hat event_types #{type.event_types}"
     end
+    expect(Group.course_types).to be_empty
   end
 
-  context "mit layer_and_below_full im Diözesanvorstand" do
-    let(:user) { Fabricate("Group::DioezesanverbandVorstand::Vorstand", group: groups(:dioezesanvorstand)).person }
+  {
+    "IT-Support (layer_and_below_full im Diözesanverband)" => -> { people(:admin) },
+    "Diözesanvorstand (layer_and_below_full)" => lambda {
+      Fabricate("Group::DioezesanverbandVorstand::Vorstand", group: groups(:dioezesanvorstand)).person
+    },
+    "Büro-Verwaltungsleitung (layer_and_below_full)" => lambda {
+      Fabricate("Group::DioezesanverbandBuero::Verwaltungsleitung", group: groups(:buero)).person
+    },
+    "Büro-Mitarbeiter (layer_full)" => lambda {
+      Fabricate("Group::DioezesanverbandBuero::Mitarbeiter", group: groups(:buero)).person
+    },
+    "Regionalverbands-Vorstand (layer_and_below_full)" => lambda {
+      Fabricate("Group::RegionalverbandVorstand::Vorsitz", group: groups(:vorstand_7)).person
+    },
+    "Ortsgruppen-Vorstand (layer_and_below_full)" => lambda {
+      Fabricate("Group::OrtsgruppeVorstand::Vorsitz", group: groups(:paderborn_vorstand)).person
+    },
+    "Fördermitglied (keine Berechtigung)" => -> { people(:member) }
+  }.each do |name, user_factory|
+    context "#{name}" do
+      let(:user) { instance_exec(&user_factory) }
 
-    it "darf Qualifikation fuer Person in Ortsgruppe anlegen" do
-      expect(ability).to be_able_to(:create, qualification)
-    end
-  end
-
-  context "ohne Berechtigung im Diözesanverband (Fördermitglied)" do
-    let(:user) { people(:member) }
-
-    it "darf keine Qualifikation anlegen oder loeschen" do
-      expect(ability).not_to be_able_to(:create, qualification)
-      expect(ability).not_to be_able_to(:destroy, qualification)
-    end
-  end
-
-  context "mit layer_and_below_full nur in der eigenen Ortsgruppe" do
-    let(:user) { Fabricate("Group::OrtsgruppeVorstand::Vorsitz", group: groups(:paderborn_vorstand)).person }
-
-    it "darf weiterhin keine Qualifikation anlegen (Ortsgruppe ist kein Kurs-Layer)" do
-      expect(ability).not_to be_able_to(:create, qualification)
+      it "darf keine Qualifikation anlegen oder loeschen" do
+        expect(ability).not_to be_able_to(:create, qualification)
+        expect(ability).not_to be_able_to(:destroy, qualification)
+      end
     end
   end
 
-  context "Diözesanvorstand: destroy" do
-    let(:user) { Fabricate("Group::DioezesanverbandVorstand::Vorstand", group: groups(:dioezesanvorstand)).person }
-
-    it "darf Qualifikation loeschen" do
-      expect(ability).to be_able_to(:destroy, qualification)
-    end
-  end
-
-  context "Büro (Verwaltungsleitung, layer_and_below_full)" do
-    let(:user) { Fabricate("Group::DioezesanverbandBuero::Verwaltungsleitung", group: groups(:buero)).person }
-
-    it "darf Qualifikation anlegen und loeschen" do
-      expect(ability).to be_able_to(:create, qualification)
-      expect(ability).to be_able_to(:destroy, qualification)
-    end
-  end
-
-  context "Regionalverbands-Vorstand (layer_and_below_full im Regionalverband)" do
-    let(:user) { Fabricate("Group::RegionalverbandVorstand::Vorsitz", group: groups(:vorstand_7)).person }
-
-    it "darf weder anlegen noch loeschen (Regionalverband ist kein Kurs-Layer)" do
-      expect(ability).not_to be_able_to(:create, qualification)
-      expect(ability).not_to be_able_to(:destroy, qualification)
-    end
-  end
-
-  context "Büro-Mitarbeiter (nur layer_full im Diözesanverband)" do
-    let(:user) { Fabricate("Group::DioezesanverbandBuero::Mitarbeiter", group: groups(:buero)).person }
-    let(:dv_person) { Fabricate("Group::Dioezesanverband::Foerdermitglied", group: groups(:root)).person }
-    let(:dv_qualification) do
-      Qualification.new(person: dv_person, qualification_kind: Fabricate(:qualification_kind),
-                        start_at: Date.new(2020, 5, 1))
-    end
-
-    it "darf nicht fuer Personen in der Ortsgruppe" do
-      expect(ability).not_to be_able_to(:create, qualification)
-      expect(ability).not_to be_able_to(:destroy, qualification)
-    end
-
-    # Rot ohne den event_types-Fix: layer_full greift nur, wenn der Layer des Benutzers
-    # Event::Course in event_types hat (Core QualificationAbility#in_course_layer_with).
-    # Ohne `Group::Dioezesanverband.event_types = [Event, Event::Course]` waere das hier nein.
-    it "darf fuer Personen im Diözesanverband-Layer anlegen und loeschen" do
-      expect(ability).to be_able_to(:create, dv_qualification)
-      expect(ability).to be_able_to(:destroy, dv_qualification)
-    end
-  end
+  # Die Admin-Verwaltung der Qualifikationsarten ist nicht per Ability, sondern im Menue
+  # ausgeblendet (spec/domain/kljb/hide_events_spec.rb); der Core erlaubt dem Admin index weiterhin.
 end

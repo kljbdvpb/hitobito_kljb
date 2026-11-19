@@ -32,6 +32,10 @@ module HitobitoKljb
       # Quicksearch (/full.json): Gruppen vor Personen
       FullTextController.prepend Kljb::QuicksearchGroupsFirst
 
+      # Anlaesse und Kurse ausblenden (Daten bleiben, siehe app/domain/kljb/hide_events)
+      Kljb::HideEvents.apply_main_nav!
+      PersonDecorator.prepend Kljb::HideEvents::PersonDecorator
+
       Export::Tabular::Groups::List.prepend Kljb::Export::Tabular::Groups::List
       Export::Tabular::People::PeopleAddress.prepend Kljb::Export::Tabular::People::HideNickname
       Export::Tabular::People::PeopleFull.prepend Kljb::Export::Tabular::People::HideNickname
