@@ -18,9 +18,10 @@ describe Kljb::BoardMembership do
   let(:person) { Fabricate(:person) }
 
   context '.no_new_person?' do
-    it 'gilt fuer Vorstand und Leiterrunde der Ortsgruppe' do
+    it 'gilt fuer Vorstand und Leiterrunde der Ortsgruppe und den RV-Vorstand' do
       expect(described_class.no_new_person?(vorstand)).to be true
       expect(described_class.no_new_person?(leiterrunde)).to be true
+      expect(described_class.no_new_person?(Group::RegionalverbandVorstand.find_by(parent_id: rv.id))).to be true
     end
 
     it 'gilt nicht fuer Ortsgruppe, Kontakte, Regionalverband und Diözesanverband' do
@@ -35,19 +36,20 @@ describe Kljb::BoardMembership do
   end
 
   context '.without_membership' do
-    it 'liefert Personen ohne Mitglied-/Foerdermitglied-Rolle in der Ortsgruppe' do
+    it 'liefert Personen ohne Mitglied-Rolle in der Ortsgruppe' do
       Fabricate(Group::OrtsgruppeVorstand::Vorsitz.name.to_sym, group: vorstand, person: person)
       expect(described_class.without_membership(vorstand)).to include(person)
     end
 
-    it 'liefert keine Personen mit Rolle Mitglied oder Foerdermitglied in der Ortsgruppe' do
+    it 'liefert keine Personen mit Rolle Mitglied in der Ortsgruppe, aber Foerdermitglieder' do
       Fabricate(Group::Ortsgruppe::Mitglied.name.to_sym, group: og, person: person)
       Fabricate(Group::OrtsgruppeVorstand::Vorsitz.name.to_sym, group: vorstand, person: person)
       other = Fabricate(:person)
       Fabricate(Group::Ortsgruppe::Foerdermitglied.name.to_sym, group: og, person: other)
       Fabricate(Group::OrtsgruppeVorstand::Mitglied.name.to_sym, group: vorstand, person: other)
 
-      expect(described_class.without_membership(vorstand)).not_to include(person, other)
+      expect(described_class.without_membership(vorstand)).not_to include(person)
+      expect(described_class.without_membership(vorstand)).to include(other)
     end
 
     it 'wertet eine Mitgliedsrolle mit start_on in der Zukunft als Mitglied' do

@@ -13,7 +13,9 @@
       %li.nav-item
         = link_to(t('kljb.board_membership.report_title'), group_board_member_check_path(group), class: 'nav-link active rounded-0 py-1 px-3 mr-0')
 
-%p= t('kljb.board_membership.report_intro', layer: group.layer_group.to_s)
+%p= t('kljb.board_membership.report_intro', layer: Kljb::BoardMembership.membership_scope_label(group))
+- if Kljb::BoardMembership.exempt_role_label(group)
+  %p= t('kljb.board_membership.report_exempt', role: Kljb::BoardMembership.exempt_role_label(group))
 %p= link_to(t('kljb.board_membership.duplicates_link', layer: group.layer_group.to_s), group_person_duplicates_path(group.layer_group))
 
 - if people.empty?

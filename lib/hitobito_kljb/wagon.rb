@@ -36,8 +36,9 @@ module HitobitoKljb
       Kljb::HideEvents.apply_main_nav!
       PersonDecorator.prepend Kljb::HideEvents::PersonDecorator
 
-      # Dubletten-Vorbeugung (T75): keine neue Person in Vorstand/Leiterrunde der Ortsgruppe
-      # (Formular, Server-Sperre, CSV-Import), siehe app/domain/kljb/board_membership.rb
+      # Dubletten-Vorbeugung (T75/T78): keine neue Person in Vorstand/Leiterrunde der Ortsgruppe
+      # und im RV-Vorstand, ausser Geist (Formular, Server-Sperre, CSV-Import),
+      # siehe app/domain/kljb/board_membership.rb
       ::RolesController.prepend Kljb::BoardMembership::RolesController
       ::RolesHelper.prepend Kljb::BoardMembership::RolesHelper
       Import::PersonImporter.prepend Kljb::BoardMembership::PersonImporter

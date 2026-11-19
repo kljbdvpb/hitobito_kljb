@@ -7,20 +7,28 @@ de:
   kljb:
     board_membership:
       new_person_blocked: >-
-        In Vorstand und Leiterrunde können keine neuen Personen angelegt werden. Bitte die Person
-        zuerst als Mitglied in der Ortsgruppe anlegen (oder dort suchen) und danach hier verknüpfen.
+        In Vorstand, Leiterrunde und Regionalverbands-Vorstand können keine neuen Personen angelegt
+        werden. Bitte die Person zuerst als Mitglied in der Ortsgruppe anlegen (oder dort suchen)
+        und danach hier verknüpfen.
+      new_person_blocked_exempt: >-
+        In Vorstand, Leiterrunde und Regionalverbands-Vorstand können keine neuen Personen angelegt
+        werden (außer für die Rolle %{role}). Bitte die Person zuerst als Mitglied in der
+        Ortsgruppe anlegen (oder dort suchen) und danach hier verknüpfen.
+      report_exempt: "Die Rolle %{role} ist von dieser Prüfung ausgenommen."
       form_hint: >-
         Neue Personen bitte zuerst als Mitglied in der Ortsgruppe anlegen und hier verknüpfen.
+      membership_in_region: "einer Ortsgruppe in %{region}"
+      form_geist_link: "Ausnahme: %{role} neu erfassen"
       membership_missing: >-
-        Achtung: %{person} hat in %{layer} keine Rolle Mitglied oder Fördermitglied. Bitte prüfen,
+        Achtung: %{person} hat in %{layer} keine Rolle Mitglied. Bitte prüfen,
         ob die Person dort noch erfasst werden muss.
       report_button:
         one: Ohne Mitgliedschaft (%{count})
         other: Ohne Mitgliedschaft (%{count})
       report_title: Ohne Mitgliedschaft
       report_intro: >-
-        Personen in dieser Gruppe, die in %{layer} weder Mitglied noch Fördermitglied sind. Bitte
+        Personen in dieser Gruppe, die in %{layer} nicht Mitglied sind. Bitte
         prüfen: fehlt die Mitgliedsrolle, oder ist die Person ein Doppel (dann unter Duplikate
-        zusammenführen)? Die Geistliche Leitung ist von dieser Prüfung ausgenommen.
-      report_empty: Alle Personen in dieser Gruppe sind in der Ortsgruppe erfasst.
+        zusammenführen)?
+      report_empty: Alle Personen in dieser Gruppe sind als Mitglied erfasst.
       duplicates_link: "Duplikate in %{layer} anzeigen"

@@ -32,6 +32,31 @@ describe Import::PersonImporter do
     expect(importer.errors.join).to include('zuerst als Mitglied')
   end
 
+  it 'legt im Vorstand eine neue Person an, wenn die Rolle Geist ist' do
+    importer = import(vorstand, Group::OrtsgruppeVorstand::Geist,
+                      [{ first_name: 'Neu', last_name: 'Geist', email: 'neu.geist@example.com' }])
+
+    expect { importer.import }.to change { Person.count }.by(1)
+    expect(importer.failure_count).to eq(0)
+  end
+
+  it 'meldet Zeilen mit neuer Person im RV-Vorstand als fehlerhaft' do
+    rv_vorstand = Group::RegionalverbandVorstand.find_by(parent_id: rv.id)
+    importer = import(rv_vorstand, Group::RegionalverbandVorstand::Mitglied,
+                      [{ first_name: 'Neu', last_name: 'Person', email: 'neu.rv@example.com' }])
+
+    expect { importer.import }.not_to change { Person.count }
+    expect(importer.failure_count).to eq(1)
+  end
+
+  it 'legt im RV-Vorstand eine neue Person an, wenn die Rolle Geist ist' do
+    rv_vorstand = Group::RegionalverbandVorstand.find_by(parent_id: rv.id)
+    importer = import(rv_vorstand, Group::RegionalverbandVorstand::Geist,
+                      [{ first_name: 'Neu', last_name: 'Geist', email: 'neu.rvgeist@example.com' }])
+
+    expect { importer.import }.to change { Person.count }.by(1)
+  end
+
   it 'ergaenzt in der Ortsgruppe eine neue Person wie bisher' do
     importer = import(og, Group::Ortsgruppe::Mitglied,
                       [{ first_name: 'Neu', last_name: 'Person', email: 'neu.import@example.com' }])

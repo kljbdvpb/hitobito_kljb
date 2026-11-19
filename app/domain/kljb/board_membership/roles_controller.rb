@@ -7,7 +7,8 @@
 
 module Kljb
   module BoardMembership
-    # Server-seitige Sperre: In Vorstand/Leiterrunde wird keine neue Person angelegt, auch nicht
+    # Server-seitige Sperre: In Vorstand, Leiterrunde und RV-Vorstand (ausser Geist) wird keine
+    # neue Person angelegt, auch nicht
     # per manipuliertem POST. Nach dem Verknuepfen einer bestehenden Person ohne Mitgliedsrolle
     # in der Ortsgruppe erscheint ein Hinweis (keine Sperre, siehe EXEMPT_ROLE_TYPES).
     module RolesController
@@ -18,13 +19,24 @@ module Kljb
 
       private
 
+      # Rollentyp-Wechsel (Core: update -> change_type) legt eine neue Rolle an: gleicher Hinweis.
+      def change_type_successfull
+        super
+        flash_membership_missing
+      end
+
       def create_entry_and_person
-        if entry.person.new_record? && Kljb::BoardMembership.no_new_person?(entry.group)
-          entry.errors.add(:base, I18n.t('kljb.board_membership.new_person_blocked'))
+        if entry.person.new_record? &&
+           Kljb::BoardMembership.new_person_blocked?(entry.group, entry.type)
+          entry.errors.add(:base, blocked_message(entry.group))
           return false
         end
 
         super
+      end
+
+      def blocked_message(group)
+        Kljb::BoardMembership.new_person_blocked_message(group)
       end
 
       # Core-create hat respond_with bereits aufgerufen; der Flash wird erst am Requestende
@@ -35,7 +47,8 @@ module Kljb
         return unless role.persisted? && Kljb::BoardMembership.membership_missing?(role)
 
         flash[:alert] = I18n.t('kljb.board_membership.membership_missing',
-                               person: role.person.to_s, layer: role.group.layer_group.to_s)
+                               person: role.person.to_s,
+                               layer: Kljb::BoardMembership.membership_scope_label(role.group))
       end
     end
   end
