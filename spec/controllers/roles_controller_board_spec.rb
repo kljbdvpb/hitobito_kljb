@@ -13,6 +13,7 @@ describe RolesController, type: :controller do
   let(:vorstand) { Group::OrtsgruppeVorstand.find_by(parent_id: og.id) }
   let(:leiterrunde) { Group::OrtsgruppeLeiterrunde.find_by(parent_id: og.id) }
   let(:kontakte) { Group::OrtsgruppeKontakte.find_by(parent_id: og.id) }
+  let(:rv_vorstand) { Group::RegionalverbandVorstand.find_by(parent_id: rv.id) }
   let(:user) { Fabricate(Group::OrtsgruppeVorstand::Vorsitz.name.to_sym, group: vorstand).person }
 
   let(:person) { Fabricate(:person) }
@@ -65,7 +66,72 @@ describe RolesController, type: :controller do
     end
   end
 
+  context 'Geistliche Begleitung (Ausnahme von der Sperre)' do
+    it 'legt im Ortsgruppen-Vorstand eine neue Person als Geist an, ohne Hinweis' do
+      expect do
+        post_role(vorstand, Group::OrtsgruppeVorstand::Geist, new_person: new_person)
+      end.to change { Person.count }.by(1).and change { Role.count }.by(1)
+
+      expect(flash[:alert]).to be_blank
+    end
+
+    it 'legt im RV-Vorstand eine neue Person als Geist an' do
+      sign_in(Fabricate(Group::RegionalverbandVorstand::Vorsitz.name.to_sym, group: rv_vorstand).person)
+
+      expect do
+        post_role(rv_vorstand, Group::RegionalverbandVorstand::Geist, new_person: new_person)
+      end.to change { Person.count }.by(1)
+    end
+
+    it 'sperrt weiterhin andere Rollen im selben Vorstand (Rollentyp entscheidet)' do
+      expect do
+        post_role(vorstand, Group::OrtsgruppeVorstand::Finanzverantwortlicher, new_person: new_person)
+      end.not_to change { Person.count }
+    end
+  end
+
+  context 'RV-Vorstand (keine neue Person)' do
+    let(:rv_user) { Fabricate(Group::RegionalverbandVorstand::Vorsitz.name.to_sym, group: rv_vorstand).person }
+
+    before { sign_in(rv_user) }
+
+    it 'lehnt eine neue Person serverseitig ab' do
+      expect do
+        post_role(rv_vorstand, Group::RegionalverbandVorstand::Mitglied, new_person: new_person)
+      end.not_to change { [Person.count, Role.count] }
+
+      expect(assigns(:role).errors[:base].join).to include('zuerst als Mitglied in der Ortsgruppe')
+    end
+
+    it 'ordnet eine Person mit Mitgliedsrolle in einer Ortsgruppe des RV ohne Hinweis zu' do
+      Fabricate(Group::Ortsgruppe::Mitglied.name.to_sym, group: og, person: person)
+      post_role(rv_vorstand, Group::RegionalverbandVorstand::Mitglied, person_id: person.id)
+
+      expect(Role.where(group_id: rv_vorstand.id, person_id: person.id).count).to eq(1)
+      expect(flash[:alert]).to be_blank
+    end
+
+    it 'ordnet eine Person ohne Mitgliedsrolle zu, mit Hinweis' do
+      post_role(rv_vorstand, Group::RegionalverbandVorstand::Mitglied, person_id: person.id)
+
+      expect(Role.where(group_id: rv_vorstand.id, person_id: person.id).count).to eq(1)
+      expect(flash[:alert]).to include(person.to_s)
+    end
+
+    it 'gibt fuer die Geistliche Begleitung keinen Hinweis' do
+      post_role(rv_vorstand, Group::RegionalverbandVorstand::Geist, person_id: person.id)
+      expect(flash[:alert]).to be_blank
+    end
+  end
+
   context 'normale Gruppen bleiben unveraendert' do
+    it 'legt in der Ortsgruppen-AG eine neue Person an (ungesperrt)' do
+      ag = Group::OrtsgruppeAg.find_by(parent_id: og.id) || Fabricate(Group::OrtsgruppeAg.name.to_sym, parent: og)
+      expect do
+        post_role(ag, Group::OrtsgruppeAg::Mitglied, new_person: new_person)
+      end.to change { Person.count }.by(1)
+    end
+
     it 'legt in der Ortsgruppe eine neue Person als Mitglied an' do
       expect do
         post_role(og, Group::Ortsgruppe::Mitglied, new_person: new_person)
@@ -92,6 +158,29 @@ describe RolesController, type: :controller do
       expect(response.body).to include('Bestehende Person suchen')
       expect(response.body).not_to include('Neue Person erfassen')
       expect(response.body).not_to include('role_new_person_first_name')
+    end
+
+    it 'zeigt im Vorstand mit Rollentyp Mitglied nur die Suche samt Link auf Geist-Formular' do
+      get :new, params: { group_id: vorstand.id, role: { type: Group::OrtsgruppeVorstand::Mitglied.sti_name } }
+
+      expect(response.body).to include('Geistliche Begleitung neu erfassen')
+      expect(response.body).to include(CGI.escapeHTML(
+        new_group_role_path(vorstand, role: { type: Group::OrtsgruppeVorstand::Geist.sti_name })
+      ))
+    end
+
+    it 'bietet bei vorgewaehltem Rollentyp Geist beide Varianten an' do
+      get :new, params: { group_id: vorstand.id, role: { type: Group::OrtsgruppeVorstand::Geist.sti_name } }
+
+      expect(response.body).to include('Neue Person erfassen')
+      expect(response.body).to include('Bestehende Person suchen')
+    end
+
+    it 'zeigt im RV-Vorstand nur die Suche' do
+      sign_in(Fabricate(Group::RegionalverbandVorstand::Vorsitz.name.to_sym, group: rv_vorstand).person)
+      get :new, params: { group_id: rv_vorstand.id, role: { type: Group::RegionalverbandVorstand::Mitglied.sti_name } }
+
+      expect(response.body).not_to include('Neue Person erfassen')
     end
 
     it 'zeigt in der Ortsgruppe weiterhin beide Varianten' do

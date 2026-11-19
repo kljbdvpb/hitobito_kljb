@@ -70,4 +70,19 @@ describe 'people/_actions_index_kljb.html.haml' do
       is_expected.not_to have_link(href: report_path)
     end
   end
+
+  context 'im Regionalverband-Vorstand' do
+    let(:group) { Group::RegionalverbandVorstand.find_by(parent_id: rv.id) }
+    let(:current_user) { Fabricate(Group::RegionalverbandVorstand::Vorsitz.name.to_sym, group: group).person }
+
+    it 'zeigt den Button, solange keine Mitgliedsrolle in einer Ortsgruppe des RV besteht' do
+      is_expected.to have_link('Ohne Mitgliedschaft (1)', href: group_board_member_check_path(group))
+    end
+
+    it 'zeigt keinen Button, wenn Mitglied in einer Ortsgruppe des RV' do
+      Fabricate(Group::Ortsgruppe::Mitglied.name.to_sym, group: og, person: current_user)
+
+      is_expected.not_to have_link(href: group_board_member_check_path(group))
+    end
+  end
 end

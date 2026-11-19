@@ -16,7 +16,7 @@ module Kljb
       def valid?(import_person)
         return false unless super
 
-        if import_person.new_record? && Kljb::BoardMembership.no_new_person?(group)
+        if import_person.new_record? && Kljb::BoardMembership.new_person_blocked?(group, role_type)
           import_person.person.errors.add(:base, I18n.t('kljb.board_membership.new_person_blocked'))
           return false
         end

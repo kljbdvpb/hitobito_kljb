@@ -7,17 +7,38 @@
 
 module Kljb
   module BoardMembership
-    # Rollenformular: in Vorstand/Leiterrunde nur "Bestehende Person suchen", ohne Umschalter
-    # auf "Neue Person erfassen" (Core: RolesHelper#swappable_role_add_fieldset, 2 Aufrufe aus
-    # roles/_person_fields). Der Neu-Block wird weggelassen, der Such-Block ohne Link gerendert.
+    # Rollenformular: in Vorstand/Leiterrunde/RV-Vorstand nur "Bestehende Person suchen", ohne
+    # Umschalter auf "Neue Person erfassen" (Core: RolesHelper#swappable_role_add_fieldset,
+    # 2 Aufrufe aus roles/_person_fields). Der Neu-Block wird weggelassen, der Such-Block ohne
+    # Link gerendert.
+    #
+    # Ausnahme Geistliche Begleitung: Der Rollentyp ist im Formular ein Select, das ohne JS-Umbau
+    # nicht auf die Personenfelder wirkt. Daher entscheidet nur der beim Oeffnen des Formulars
+    # (bzw. nach Fehler beim erneuten Rendern) gewaehlte Rollentyp: ist er Geist, bietet das
+    # Formular beide Varianten wie in normalen Gruppen. Sonst steht im Hinweis ein Link auf das
+    # Formular mit vorgewaehltem Rollentyp Geist. Massgeblich bleibt die Server-Sperre.
     module RolesHelper
       def swappable_role_add_fieldset(*keys, &block)
-        return super unless Kljb::BoardMembership.no_new_person?(entry.group)
+        return super unless Kljb::BoardMembership.new_person_blocked?(entry.group, entry.type)
         return unless keys.first == :create_new # Neu-Block entfaellt
 
         title = safe_join([t('roles.person_fields.search_existing_person'),
-                           content_tag(:small, t('kljb.board_membership.form_hint'))], ' ')
+                           content_tag(:small, board_membership_form_hint)], ' ')
         field_set_tag(title, class: 'person-fields') { block.call }
+      end
+
+      private
+
+      def board_membership_form_hint
+        geist = Kljb::BoardMembership::EXEMPT_ROLE_TYPES.find do |type|
+          entry.group.class.role_types.map(&:sti_name).include?(type)
+        end
+        hint = t('kljb.board_membership.form_hint')
+        return hint unless geist
+
+        safe_join([hint,
+                   link_to(t('kljb.board_membership.form_geist_link'),
+                           new_group_role_path(entry.group, role: { type: geist }))], ' ')
       end
     end
   end
