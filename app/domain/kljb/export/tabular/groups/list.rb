@@ -29,7 +29,9 @@ module Kljb::Export::Tabular::Groups::List
 
     sums = Hash.new(0)
     super do |row|
-      attributes.zip(row).each { |attr, value| sums[attr] += value.to_i if SUM_ATTRS.include?(attr) }
+      attributes.zip(row).each do |attr, value|
+        sums[attr] += value.to_i if SUM_ATTRS.include?(attr)
+      end
       yield row
     end
     yield sum_row(sums)
