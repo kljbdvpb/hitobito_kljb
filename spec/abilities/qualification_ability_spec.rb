@@ -56,12 +56,6 @@ describe QualificationAbility do
     end
   end
 
-  context "Verwaltung der Qualifikationsarten (Admin)" do
-    let(:user) { people(:admin) }
-
-    it "ist ausgeblendet, solange es keine Kurs-Typen gibt (VariousAbility)" do
-      expect(ability).not_to be_able_to(:index, QualificationKind)
-      expect(ability).not_to be_able_to(:manage, Fabricate(:qualification_kind))
-    end
-  end
+  # Die Admin-Verwaltung der Qualifikationsarten ist nicht per Ability, sondern im Menue
+  # ausgeblendet (spec/domain/kljb/hide_events_spec.rb); der Core erlaubt dem Admin index weiterhin.
 end
