@@ -14,6 +14,11 @@ describe Kljb::HideEvents do
     expect(labels).not_to include(:events, :courses)
   end
 
+  it "Admin-Menue enthaelt weder Kursarten noch Qualifikationsarten" do
+    models = NavigationHelper::ADMIN_GROUPS.values.flat_map { |g| g[:items] }.map(&:model)
+    expect(models).not_to include(Event::Kind, Event::KindCategory, QualificationKind)
+  end
+
   it "apply_main_nav! ist idempotent" do
     expect { described_class.apply_main_nav! }.not_to change { NavigationHelper::MAIN.size }
   end

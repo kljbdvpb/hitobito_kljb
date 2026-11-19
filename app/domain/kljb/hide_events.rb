@@ -16,9 +16,19 @@ module Kljb
   module HideEvents
     HIDDEN_MAIN_NAV = %i[events courses].freeze
 
-    # Entfernt Anlaesse/Kurse aus NavigationHelper::MAIN (idempotent, to_prepare laeuft mehrfach).
+    # Admin-Menue: Kursarten, Kursart-Kategorien (VariousAbility: index fuer alle sichtbar)
+    # und Qualifikationsarten.
+    HIDDEN_ADMIN_MODELS = [Event::Kind, Event::KindCategory, QualificationKind].freeze
+
+    # Entfernt Anlaesse/Kurse aus NavigationHelper::MAIN und die Kurs-Verwaltung aus dem
+    # Admin-Menue (idempotent, to_prepare laeuft mehrfach). Leere Admin-Gruppen entfallen.
     def self.apply_main_nav!
       NavigationHelper::MAIN.reject! { |item| HIDDEN_MAIN_NAV.include?(item[:label]) }
+
+      NavigationHelper::ADMIN_GROUPS.each_value do |group|
+        group[:items].reject! { |item| HIDDEN_ADMIN_MODELS.include?(item.model) }
+      end
+      NavigationHelper::ADMIN_GROUPS.reject! { |_key, group| group[:items].empty? }
     end
 
     # Personenprofil (people/_attrs): keine Anmeldungen/Bewerbungen/Anlaesse in der Seitenleiste.
