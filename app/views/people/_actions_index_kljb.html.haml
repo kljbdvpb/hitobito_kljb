@@ -1,0 +1,10 @@
+-#  Copyright (c) 2026, Katholische Landjugendbewegung Paderborn. This file is part of
+-#  hitobito_kljb and licensed under the Affero General Public License version 3
+-#  or later. See the COPYING file at the top-level directory or at
+-#  https://github.com/hitobito/hitobito_kljb.
+
+-# Vorstand/Leiterrunde: Hinweis-Button, solange Personen ohne Mitgliedsrolle in der Ortsgruppe da sind
+- if Kljb::BoardMembership.no_new_person?(@group) && can?(:manage_person_duplicates, @group)
+  - missing = Kljb::BoardMembership.without_membership(@group).count
+  - if missing.positive?
+    = action_button(t('kljb.board_membership.report_button', count: missing), group_board_member_check_path(@group), :'user-times')
