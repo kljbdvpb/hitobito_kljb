@@ -24,12 +24,16 @@ module Kljb
   module QuicksearchGroupsFirst
     MAX_GROUPS = 10
 
+    # Der Core-JS setzt das Label als HTML ein; die Klasse erlaubt es dem Wagon-SCSS, die
+    # Trennzeile nicht klickbar zu machen (Klick fuehrte sonst nach /undefined/undefined).
+    SEPARATOR_LABEL = '<span class="quicksearch-separator">' + ('—' * 20) + '</span>'
+
     private
 
     def results_with_separator
       sets = [Array(@groups).first(MAX_GROUPS), @people, @events, @invoices].compact_blank
       sets.inject do |memo, set|
-        memo + [{label: "—" * 20}] + set
+        memo + [{label: SEPARATOR_LABEL}] + set
       end
     end
   end
