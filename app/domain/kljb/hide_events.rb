@@ -18,7 +18,7 @@ module Kljb
 
     # Admin-Menue: Kursarten, Kursart-Kategorien (VariousAbility: index fuer alle sichtbar)
     # und Qualifikationsarten.
-    HIDDEN_ADMIN_MODELS = [Event::Kind, Event::KindCategory, QualificationKind].freeze
+    HIDDEN_ADMIN_MODELS = [::Event::Kind, ::Event::KindCategory, ::QualificationKind].freeze
 
     # Entfernt Anlaesse/Kurse aus NavigationHelper::MAIN und die Kurs-Verwaltung aus dem
     # Admin-Menue (idempotent, to_prepare laeuft mehrfach). Leere Admin-Gruppen entfallen.
