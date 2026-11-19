@@ -44,4 +44,27 @@ describe MemberPaymentStatusJob do
       end
     end
   end
+
+  describe 'archivierte Ortsgruppen' do
+    it 'zaehlt archivierte Ortsgruppen nicht, laesst bestehende Werte unveraendert' do
+      paderborn = groups(:paderborn)
+      bonn = groups(:bonn)
+      Fabricate('Group::Ortsgruppe::Mitglied', group: paderborn)
+      Fabricate('Group::Ortsgruppe::Mitglied', group: bonn)
+      bonn.update_columns(archived_at: Time.zone.now, members_normal: 99, members_discounted: 3)
+
+      described_class.new.send(:perform_internal)
+
+      expect(paderborn.reload.members_normal).to eq 1
+      expect(bonn.reload.members_normal).to eq 99
+      expect(bonn.members_discounted).to eq 3
+    end
+
+    it 'zaehlt geloeschte Ortsgruppen nicht' do
+      bonn = groups(:bonn)
+      bonn.update_columns(deleted_at: Time.zone.now, members_normal: 42)
+      described_class.new.send(:perform_internal)
+      expect(bonn.reload.members_normal).to eq 42
+    end
+  end
 end

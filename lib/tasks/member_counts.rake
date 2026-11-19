@@ -23,7 +23,7 @@ namespace :hitobito_kljb do
            "aussagekraeftig."
       sums = Hash.new(0)
       deviations = 0
-      Group::Ortsgruppe.without_deleted.find_each do |group|
+      Group::Ortsgruppe.without_deleted.without_archived.find_each do |group|
         if !force && attrs.any? { |a| group.public_send(a) }
           puts "SKIP group=#{group.id} Altersspalten bereits gefuellt (FORCE=1 zum Ueberschreiben)"
           next
