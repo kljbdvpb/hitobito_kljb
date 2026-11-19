@@ -17,6 +17,9 @@ describe PeopleController, type: :controller do
 
   render_views
 
+  # Layout bindet application.css ein, Assets sind in der Wagon-CI nicht gebaut.
+  before { allow(controller).to receive(:_layout).and_return(nil) }
+
   before { sign_in(vorsitz) }
 
   it 'zeigt den Button bei Person ohne Mitgliedsrolle' do

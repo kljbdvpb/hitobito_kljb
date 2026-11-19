@@ -39,9 +39,9 @@ module Kljb
       # Personen mit aktiver Rolle in +group+ (Vorstand/Leiterrunde), die in der Ortsgruppe
       # (Layer) keine Mitgliedsrolle haben. Ausgenommene Rollen (Geist) zaehlen nicht.
       def without_membership(group)
-        return Person.none unless no_new_person?(group)
+        return ::Person.none unless no_new_person?(group)
 
-        Person.where(id: Role.active_and_future.where(group_id: group.id)
+        ::Person.where(id: ::Role.active_and_future.where(group_id: group.id)
                              .where.not(type: EXEMPT_ROLE_TYPES)
                              .select(:person_id))
               .where.not(id: member_person_ids(group.layer_group_id))
@@ -59,8 +59,8 @@ module Kljb
       private
 
       def member_person_ids(layer_group_id)
-        # Auch Rollen mit start_on in der Zukunft zaehlen (Role.active_and_future)
-        Role.active_and_future.where(group_id: layer_group_id, type: MEMBER_ROLE_TYPES)
+        # Auch Rollen mit start_on in der Zukunft zaehlen (::Role.active_and_future)
+        ::Role.active_and_future.where(group_id: layer_group_id, type: MEMBER_ROLE_TYPES)
             .select(:person_id)
       end
     end

@@ -28,7 +28,7 @@ describe RolesController, type: :controller do
     it 'lehnt eine neue Person serverseitig ab, legt weder Person noch Rolle an' do
       expect do
         post_role(vorstand, Group::OrtsgruppeVorstand::Mitglied, new_person: new_person)
-      end.to change { [Person.count, Role.count] }.by([0, 0])
+      end.not_to change { [Person.count, Role.count] }
 
       expect(response).not_to be_redirect
       expect(assigns(:role).errors[:base].join).to include('zuerst als Mitglied in der Ortsgruppe')
@@ -81,6 +81,10 @@ describe RolesController, type: :controller do
 
   context 'Formular' do
     render_views
+
+    # Das Layout bindet application.css ein; Assets sind in der Wagon-CI nicht gebaut
+    # (Propshaft::MissingAssetError). Fuer die Formular-Pruefung genuegt das Template.
+    before { allow(controller).to receive(:_layout).and_return(nil) }
 
     it 'zeigt im Vorstand nur die Suche, keinen Umschalter auf neue Person' do
       get :new, params: { group_id: vorstand.id, role: { type: Group::OrtsgruppeVorstand::Mitglied.sti_name } }

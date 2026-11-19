@@ -24,6 +24,9 @@ describe BoardMemberChecksController, type: :controller do
 
   render_views
 
+  # Layout bindet application.css ein, Assets sind in der Wagon-CI nicht gebaut.
+  before { allow(controller).to receive(:_layout).and_return(nil) }
+
   it 'listet Vorstandspersonen ohne Mitgliedsrolle' do
     get :index, params: { group_id: vorstand.id }
 
