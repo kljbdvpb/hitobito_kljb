@@ -37,7 +37,9 @@ module Groups
     end
 
     def normal_members
-      @normal_members ||= all_members_of_layer.count - discounted_members
+      # distinct: eine Person mit zwei aktiven Mitglied-Rollen im Layer zaehlt einmal
+      # (Person.joins(:roles) liefert sonst eine Zeile je Rolle).
+      @normal_members ||= all_members_of_layer.distinct.count - discounted_members
     end
 
     def discounted_members

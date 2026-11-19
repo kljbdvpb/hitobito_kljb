@@ -96,6 +96,21 @@ describe Groups::MemberPaymentStatus do
     end
   end
 
+  context 'with a person having two member roles in the layer' do
+    before do
+      person = Fabricate(:person)
+      Fabricate('Group::Ortsgruppe::Mitglied', person: person, group: group)
+      Fabricate('Group::Ortsgruppe::Mitglied', person: person, group: group, label: 'zweite')
+      Fabricate('Group::Ortsgruppe::Mitglied', group: group)
+    end
+
+    it 'counts each person only once' do
+      expect do
+        subject.update
+      end.to change(group, :members_normal).to(2)
+    end
+  end
+
   context 'counts only members' do
     before do
       10.times do
