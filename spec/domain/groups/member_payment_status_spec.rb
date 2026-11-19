@@ -250,20 +250,28 @@ describe Groups::MemberPaymentStatus do
   describe 'backfill_age_attributes!' do
     around { |example| travel_to('2021-12-14') { example.run } }
 
-    def member_role(birthday, created_at:, deleted_at: nil)
+    # start_on explizit setzen: Fabricate setzt start_on auf Date.current (hier 2021-12-14)
+    def member_role(birthday, start_on:, end_on: nil)
       role = Fabricate('Group::Ortsgruppe::Mitglied', group: group,
                        person: Fabricate(:person, birthday: birthday))
-      role.update_columns(created_at: created_at, deleted_at: deleted_at)
+      role.update_columns(start_on: start_on, end_on: end_on)
       role
     end
 
     before do
-      member_role('2012-01-01', created_at: '2021-01-01')                          # u14, war dabei
-      member_role('2000-01-01', created_at: '2021-01-01', deleted_at: '2021-10-01') # spaeter beendet, war dabei
-      member_role('2000-01-01', created_at: '2021-01-01', deleted_at: '2021-08-01') # vor Stichtag beendet
-      member_role('2000-01-01', created_at: '2021-10-01')                          # nach Stichtag neu
-      member_role(nil, created_at: '2021-01-01')                                   # ohne Geburtsdatum
+      member_role('2012-01-01', start_on: '2021-01-01')                          # u14, war dabei
+      member_role('2000-01-01', start_on: '2021-01-01', end_on: '2021-09-30')    # spaeter beendet
+      member_role('2000-01-01', start_on: '2021-01-01', end_on: '2021-08-01')    # vor Stichtag beendet
+      member_role('2000-01-01', start_on: '2021-10-01')                          # nach Stichtag neu
+      member_role(nil, start_on: '2021-01-01')                                   # ohne Geburtsdatum
       group.update_columns(members_normal: 42, members_discounted: 7, updated_at: '2021-09-01')
+    end
+
+    it 'counts roles on the cutoff boundaries' do
+      member_role('2000-01-01', start_on: '2021-09-01')                  # Beginn am Stichtag zaehlt
+      member_role('2000-01-01', start_on: '2021-01-01', end_on: '2021-09-01') # Ende am Stichtag zaehlt
+      member_role('2000-01-01', start_on: '2021-01-01', end_on: '2021-08-31') # Tag davor beendet nicht
+      expect(paderborn_status.backfill_age_attributes!).to include(members_from_14: 3)
     end
 
     it 'reconstructs the member set at the cutoff date' do

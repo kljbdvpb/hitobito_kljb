@@ -40,11 +40,16 @@ module Groups
     def update
       return false unless @group.layer?
 
-      @group.update(
+      result = @group.update(
         members_normal: normal_members,
         members_discounted: discounted_members,
         **age_attributes
       )
+      unless result
+        Rails.logger.warn("MemberPaymentStatus: Gruppe #{@group.id} nicht gespeichert: " \
+                          "#{@group.errors.full_messages.to_sentence}")
+      end
+      result
     end
 
     # Altersgruppen der aktuellen Mitglieder des Layers, Alter am Stichtag (cutoff_date).
@@ -66,8 +71,8 @@ module Groups
     end
 
     # Backfill: schreibt NUR die Altersspalten (update_columns: keine Validierung, kein
-    # updated_at), members_normal/members_discounted bleiben unberuehrt. Mitglieder werden aus der
-    # Rollen-Historie zum Stichtag rekonstruiert (siehe members_at).
+    # updated_at), members_normal/members_discounted bleiben unberuehrt. Mitglieder werden aus
+    # start_on/end_on der Rollen zum Stichtag rekonstruiert (siehe members_at).
     def backfill_age_attributes!(at: self.class.cutoff_date)
       return false unless @group.layer?
 
@@ -76,16 +81,14 @@ module Groups
       attrs
     end
 
-    # Personen mit einer Mitglied-Rolle im Layer, die am Stichtag (05:00 Uhr, Laufzeit des
-    # MemberPaymentStatusJob) bestand: created_at <= Stichtag und nicht vor dem Stichtag
-    # geloescht/beendet (deleted_at). Rollen, die < minimum_days_to_archive Tage alt geloescht
-    # wurden, sind hart geloescht und nicht rekonstruierbar.
+    # Personen mit einer Mitglied-Rolle im Layer, die am Stichtag aktiv war. Gleiche Regel wie
+    # der Default-Scope der Rollen beim Joblauf (Core 2.11.5): start_on <= Stichtag (oder leer)
+    # und end_on >= Stichtag (oder leer). Rollen, die beendet wurden, bleiben mit end_on erhalten;
+    # hart geloeschte Rollen (< minimum_days_to_archive Tage alt) sind nicht rekonstruierbar.
+    # archived_at wird wie im Live-Pfad nicht gefiltert.
     def members_at(date)
-      time = date.in_time_zone.change(hour: 5)
-      roles = Role.with_deleted
+      roles = Role.active(date.to_date)
         .where(type: MEMBER_ROLE_TYPES, group_id: layer_group_ids)
-        .where("roles.created_at <= ?", time)
-        .where("roles.deleted_at IS NULL OR roles.deleted_at > ?", time)
       Person.where(id: roles.select(:person_id))
     end
 
