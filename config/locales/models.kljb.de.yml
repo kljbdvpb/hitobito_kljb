@@ -174,3 +174,8 @@ de:
       group:
         members_normal: normale Mitglieder
         members_discounted: vergünstigte Mitglieder
+        members_total: Mitglieder gesamt (normal + vergünstigt)
+        members_under_14: Mitglieder unter 14 Jahre
+        members_from_14: Mitglieder ab 14 Jahre
+        members_up_to_27: Mitglieder bis einschließlich 27 Jahre
+        members_without_birthday: Mitglieder ohne Geburtsdatum
