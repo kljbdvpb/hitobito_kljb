@@ -147,16 +147,18 @@ describe Groups::MemberPaymentStatus do
     end
   end
 
+  # Nutzerentscheidung 2026-11-19: Fuer "drittes und weiteres Kind" zaehlen nur Geschwister,
+  # die selbst aktive Mitglieder derselben Ortsgruppe (Layer) sind.
   context 'with siblings in other groups' do
     let(:bonn) { groups(:bonn) }
     let(:paderborn) { group }
-    subject(:bonn_status) { described_class.new(bonn)}
+    subject(:bonn_status) { described_class.new(bonn) }
+
+    let(:tom) { Fabricate(:person, birthday: 20.years.ago, nickname: 'tom') }
+    let(:olaf) { Fabricate(:person, birthday: 15.years.ago, nickname: 'olaf') }
+    let(:peter) { Fabricate(:person, birthday: 13.years.ago, nickname: 'peter') }
 
     before do
-      tom   = Fabricate(:person, birthday: 20.years.ago, nickname: 'tom')
-      olaf  = Fabricate(:person, birthday: 15.years.ago, nickname: 'olaf')
-      peter = Fabricate(:person, birthday: 13.years.ago, nickname: 'peter')
-
       Fabricate(:family_member, person: tom, other: olaf, kind: 'sibling')
       Fabricate(:family_member, person: tom, other: peter, kind: 'sibling')
 
@@ -177,16 +179,46 @@ describe Groups::MemberPaymentStatus do
       end.to change { bonn.members_normal.to_i + bonn.members_discounted.to_i }.to(1)
     end
 
-    it 'the 2 oldest siblings count as normal members' do
-      expect do
-        paderborn_status.update
-      end.to change(paderborn, :members_normal).to(2)
+    it 'does not count siblings of another group: no discount anywhere' do
+      paderborn_status.update
+      bonn_status.update
+      expect(paderborn.members_discounted).to eq 0
+      expect(paderborn.members_normal).to eq 2
+      expect(bonn.members_discounted).to eq 0
+      expect(bonn.members_normal).to eq 1
     end
+  end
 
-    it 'the 1 youngest siblings counts as discounted member in its group' do
-      expect do
-        bonn_status.update
-      end.to change(bonn, :members_discounted).to(1)
+  context 'with siblings without member role in the layer' do
+    it 'does not count siblings that have no Mitglied role' do
+      tom   = Fabricate(:person, birthday: 20.years.ago)
+      olaf  = Fabricate(:person, birthday: 15.years.ago)
+      peter = Fabricate(:person, birthday: 13.years.ago)
+      Fabricate(:family_member, person: tom, other: olaf, kind: 'sibling')
+      Fabricate(:family_member, person: tom, other: peter, kind: 'sibling')
+      Fabricate('Group::Ortsgruppe::Mitglied', person: tom, group: group)
+      Fabricate('Group::OrtsgruppeVorstand::Mitglied', person: olaf,
+                                                                group: groups(:paderborn_vorstand))
+      Fabricate('Group::Ortsgruppe::Mitglied', person: peter, group: group)
+      [tom, olaf, peter].each(&:reload)
+
+      paderborn_status.update
+      expect(group.members_normal).to eq 2
+      expect(group.members_discounted).to eq 0
+    end
+  end
+
+  context 'with three siblings in the same group' do
+    it 'discounts exactly the youngest' do
+      kids = [20, 15, 13].map { |age| Fabricate(:person, birthday: age.years.ago) }
+      Fabricate(:family_member, person: kids[0], other: kids[1], kind: 'sibling')
+      Fabricate(:family_member, person: kids[0], other: kids[2], kind: 'sibling')
+      kids.each { |k| Fabricate('Group::Ortsgruppe::Mitglied', person: k, group: group) }
+      kids.each(&:reload)
+
+      paderborn_status.update
+      expect(group.members_normal).to eq 2
+      expect(group.members_discounted).to eq 1
     end
   end
 

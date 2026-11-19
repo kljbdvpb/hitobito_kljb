@@ -10,12 +10,14 @@
 # unnoetig und wuerden Personen/Zahlen doppelt fuehren. Der Filter sitzt im Job (einziger
 # Verwender von Export::Tabular::Groups::List), nicht in der List-Klasse. Geloeschte Gruppen
 # filtert weiterhin der Core (without_deleted), Reihenfolge (lft) bleibt erhalten.
+# Archivierte Ortsgruppen (archived_at gesetzt) werden ebenfalls nicht exportiert
+# (Nutzerentscheidung 2026-11-19).
 module Kljb::Export::SubgroupsExportJob
   EXPORT_GROUP_TYPE = "Group::Ortsgruppe"
 
   private
 
   def entries
-    super.where(type: EXPORT_GROUP_TYPE)
+    super.where(type: EXPORT_GROUP_TYPE).without_archived
   end
 end

@@ -117,29 +117,17 @@ module Groups
         })
     end
 
-    def members_with_siblings
-      all_members_of_layer.where.not(family_key: nil).order(:family_key)
-    end
-
-    def complete_families(keys)
-      Person.where(family_key: keys).order(:family_key, :birthday)
-    end
-
-    def underage_people_with_two_siblings(keys)
-      complete_families(keys)
-        .group_by(&:family_key)
-        .map { |_key, family|
-        family.drop(2).select { |person|
-          person.underage?(Groups::MemberPaymentStatus.cutoff_date)
-        }
-      }
-        .flatten.compact
-    end
-
+    # Geschwisterrabatt (Nutzerentscheidung 2026-11-19): fuer "drittes und weiteres Kind" zaehlen
+    # nur Geschwister (gleicher family_key), die selbst ein aktives Mitglied desselben Layers
+    # sind. Geschwister in anderen Ortsgruppen oder ohne Mitgliedsrolle werden nicht gezaehlt.
+    # Reihenfolge nach Geburtstag, dann die ab dem dritten Kind am Stichtag Minderjaehrigen.
     def underage_members_with_two_siblings
-      keys = members_with_siblings.uniq.pluck(:family_key)
+      layer_members = Person.where(id: all_members_of_layer.select(:id))
+        .where.not(family_key: nil).order(:family_key, :birthday, :id)
 
-      underage_people_with_two_siblings(keys) & all_members_of_layer
+      layer_members.group_by(&:family_key).flat_map { |_key, family|
+        family.drop(2).select { |person| person.underage?(self.class.cutoff_date) }
+      }
     end
   end
 end

@@ -33,6 +33,12 @@ describe Export::SubgroupsExportJob do
     expect(entries.map(&:lft)).to eq entries.map(&:lft).sort
   end
 
+  it 'skips archived Ortsgruppen' do
+    bonn.update_columns(archived_at: Time.zone.now)
+    expect(entries).to include(paderborn)
+    expect(entries).not_to include(bonn)
+  end
+
   it 'sums only the Ortsgruppen in the sum row' do
     paderborn.update!(members_normal: 23, members_discounted: 7)
     bonn.update!(members_normal: 5)
