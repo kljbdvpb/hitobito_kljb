@@ -1,0 +1,26 @@
+#  Copyright (c) 2026, Katholische Landjugendbewegung Paderborn. This file is part of
+#  hitobito_kljb and licensed under the Affero General Public License version 3
+#  or later. See the COPYING file at the top-level directory or at
+#  https://github.com/hitobito/hitobito_kljb.
+
+de:
+  kljb:
+    board_membership:
+      new_person_blocked: >-
+        In Vorstand und Leiterrunde können keine neuen Personen angelegt werden. Bitte die Person
+        zuerst als Mitglied in der Ortsgruppe anlegen (oder dort suchen) und danach hier verknüpfen.
+      form_hint: >-
+        Neue Personen bitte zuerst als Mitglied in der Ortsgruppe anlegen und hier verknüpfen.
+      membership_missing: >-
+        Achtung: %{person} hat in %{layer} keine Rolle Mitglied oder Fördermitglied. Bitte prüfen,
+        ob die Person dort noch erfasst werden muss.
+      report_button:
+        one: Ohne Mitgliedschaft (%{count})
+        other: Ohne Mitgliedschaft (%{count})
+      report_title: Ohne Mitgliedschaft
+      report_intro: >-
+        Personen in dieser Gruppe, die in %{layer} weder Mitglied noch Fördermitglied sind. Bitte
+        prüfen: fehlt die Mitgliedsrolle, oder ist die Person ein Doppel (dann unter Duplikate
+        zusammenführen)? Die Geistliche Leitung ist von dieser Prüfung ausgenommen.
+      report_empty: Alle Personen in dieser Gruppe sind in der Ortsgruppe erfasst.
+      duplicates_link: "Duplikate in %{layer} anzeigen"

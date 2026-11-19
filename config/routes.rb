@@ -13,6 +13,11 @@ Rails.application.routes.draw do
   language_scope do
     # Define wagon routes here
 
+    # Dubletten-Vorbeugung: Bericht Vorstand/Leitung ohne Mitgliedsrolle (T75)
+    resources :groups, only: [] do
+      get 'board_member_check', to: 'board_member_checks#index', as: :board_member_check
+    end
+
   end
 
 end
