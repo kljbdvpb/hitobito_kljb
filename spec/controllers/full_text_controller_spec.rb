@@ -8,7 +8,7 @@
 require 'spec_helper'
 
 describe FullTextController, type: :controller do
-  let(:separator) { { 'label' => '—' * 20 } }
+  let(:separator) { { 'label' => Kljb::QuicksearchGroupsFirst::SEPARATOR_LABEL } }
   let(:group_ids) { [groups(:paderborn).id, groups(:bonn).id] }
   let(:person_ids) { [people(:leader).id, people(:member).id] }
 

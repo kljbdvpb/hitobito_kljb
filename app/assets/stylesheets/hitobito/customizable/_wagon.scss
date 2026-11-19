@@ -29,50 +29,67 @@
 }
 
 
-// Quicksearch-Ausklappmenue (Core 2.11.5: autocomplete.js, modules/_typeahead.scss).
-// Der Core setzt fest width: 250px, weisser Hintergrund ohne Schatten, Hover in Core-Lila
-// (#925D97). Hier: breiter (mind. so breit wie das Suchfeld, max. Bildschirmbreite), Schatten,
-// abgerundet, Icons und Auswahl in KLJB-Farben. Nur fuer die Quicksearch, nicht fuer die
-// Entity-Typeaheads in Formularen. Gruppen/Personen/Events sind am Icon (fa-users/fa-user/
-// fa-calendar-alt) zu unterscheiden; der Trenner (20 Gedankenstriche) kommt aus dem Core.
-.quicksearch .autoComplete_wrapper {
-  ul {
-    width: 30rem;
-    min-width: 100%;
-    max-width: calc(100vw - 2rem);
-    max-height: 70vh;
-    overflow-y: auto;
-    margin: .25rem 0 0;
-    padding: 0;
-    border-color: $kljb-green;
-    border-radius: .375rem;
-    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15);
-    color: $text-color;
+// Quicksearch-Ausklappmenue im Aussehen von hitobito 1.27.6 (Bootstrap-2-Typeahead,
+// ul.typeahead.dropdown-menu). Core 2.11.5 rendert autocomplete.js (ul > li, mark) mit fester
+// Breite 250px, ohne Schatten und mit Core-Lila beim Hover; hier werden die alten Werte
+// nachgebildet (Quelle: docs/quicksearch-altes-design.md). Nur fuer die Quicksearch, nicht
+// fuer die Entity-Typeaheads in Formularen.
+.quicksearch .autoComplete_wrapper ul {
+  z-index: 1051;
+  width: auto;
+  min-width: 160px;
+  max-width: calc(100vw - 2rem); // Schutz gegen horizontales Scrollen am Handy
+  margin: 2px 0 0;
+  padding: 5px 0;
+  background-color: $white;
+  border: 1px solid rgba(0, 0, 0, .2);
+  border-radius: 4px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+  background-clip: padding-box;
+  font-size: 14px;
 
-    li {
-      padding: .5rem .75rem;
-      overflow-wrap: anywhere;
+  li {
+    padding: 3px 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 20px;
+    font-weight: 400;
+    color: $gray-dark;
+    border-bottom: 0; // alt: keine Trennlinien zwischen den Eintraegen
 
-      .fa {
-        display: inline-block;
-        width: 1.25em;
-        text-align: center;
-        color: $kljb-green;
-      }
-
-      &:last-child {
-        border-bottom: 0;
-      }
+    // Treffer fett statt Core-Hervorhebung (alt: <strong>)
+    mark {
+      font-weight: bold;
+      color: inherit;
     }
 
-    li:hover,
-    li[aria-selected="true"] {
-      background-color: $kljb-20percent-green;
-      color: $text-color;
-
-      mark {
-        color: $text-color;
-      }
+    // Auswahl per Tastatur: KLJB-Gruen mit Verlauf (alt: Bootstrap .active)
+    &[aria-selected="true"] {
+      background-color: #00827a;
+      background-image: linear-gradient(180deg, $kljb-green, #00736c);
+      color: $white;
     }
+  }
+
+  // Maus-Hover: flaches Lila wie in 1.27.6 (_navigation.scss: background $purple);
+  // gewinnt gegen die Tastaturauswahl, wie damals.
+  li:hover {
+    background: $purple;
+    color: $white;
+  }
+
+  li[aria-selected="true"] mark,
+  li:hover mark {
+    color: $white;
+  }
+
+  // Trenner zwischen Gruppen und Personen (Kljb::QuicksearchGroupsFirst): in 1.27.6 eine
+  // normale, wirkungslose Zeile aus Strichen. Im Core 2.11.5 wuerde ein Klick nach
+  // /undefined/undefined fuehren, daher nicht klickbar und ohne Hover/Auswahl-Farbe.
+  li:has(.quicksearch-separator) {
+    pointer-events: none;
+    background: transparent;
+    color: $gray-dark;
   }
 }
