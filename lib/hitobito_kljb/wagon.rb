@@ -37,6 +37,7 @@ module HitobitoKljb
       PersonDecorator.prepend Kljb::HideEvents::PersonDecorator
 
       Export::Tabular::Groups::List.prepend Kljb::Export::Tabular::Groups::List
+      Export::Tabular::Groups::Row.prepend Kljb::Export::Tabular::Groups::Row
       Export::Tabular::People::PeopleAddress.prepend Kljb::Export::Tabular::People::HideNickname
       Export::Tabular::People::PeopleFull.prepend Kljb::Export::Tabular::People::HideNickname
 
