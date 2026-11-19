@@ -42,6 +42,34 @@ describe BoardMemberChecksController, type: :controller do
     expect { get :index, params: { group_id: og.id } }.to raise_error(ActiveRecord::RecordNotFound)
   end
 
+  it 'verweist auf die Duplikate-Liste der Ortsgruppe' do
+    get :index, params: { group_id: vorstand.id }
+
+    expect(response.body).to include(group_person_duplicates_path(og))
+  end
+
+  it 'zaehlt eine Mitgliedsrolle mit start_on in der Zukunft als Mitglied' do
+    Fabricate(Group::Ortsgruppe::Mitglied.name.to_sym, group: og, person: person,
+                                                         start_on: Date.current + 1.month)
+    get :index, params: { group_id: vorstand.id }
+
+    expect(response.body).not_to include('Ohne Mitglied')
+  end
+
+  it 'verweigert dem Vorsitz einer anderen Ortsgruppe (Layer-Grenze)' do
+    og2 = Fabricate(Group::Ortsgruppe.name.to_sym, parent: rv)
+    vorstand2 = Group::OrtsgruppeVorstand.find_by(parent_id: og2.id)
+    sign_in(Fabricate(Group::OrtsgruppeVorstand::Vorsitz.name.to_sym, group: vorstand2).person)
+
+    expect { get :index, params: { group_id: vorstand.id } }.to raise_error(CanCan::AccessDenied)
+  end
+
+  it 'verweigert Vorstands-Mitgliedern mit nur layer_full' do
+    sign_in(Fabricate(Group::OrtsgruppeVorstand::Mitglied.name.to_sym, group: vorstand).person)
+
+    expect { get :index, params: { group_id: vorstand.id } }.to raise_error(CanCan::AccessDenied)
+  end
+
   it 'verweigert Personen ohne Berechtigung' do
     sign_in(Fabricate(Group::OrtsgruppeLeiterrunde::Leiter.name.to_sym, group: leiterrunde).person)
 

@@ -23,3 +23,4 @@ de:
         prüfen: fehlt die Mitgliedsrolle, oder ist die Person ein Doppel (dann unter Duplikate
         zusammenführen)? Die Geistliche Leitung ist von dieser Prüfung ausgenommen.
       report_empty: Alle Personen in dieser Gruppe sind in der Ortsgruppe erfasst.
+      duplicates_link: "Duplikate in %{layer} anzeigen"

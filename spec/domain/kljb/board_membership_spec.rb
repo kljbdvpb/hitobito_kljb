@@ -50,6 +50,13 @@ describe Kljb::BoardMembership do
       expect(described_class.without_membership(vorstand)).not_to include(person, other)
     end
 
+    it 'wertet eine Mitgliedsrolle mit start_on in der Zukunft als Mitglied' do
+      Fabricate(Group::Ortsgruppe::Mitglied.name.to_sym, group: og, person: person,
+                                                           start_on: Date.current + 1.month)
+      Fabricate(Group::OrtsgruppeVorstand::Vorsitz.name.to_sym, group: vorstand, person: person)
+      expect(described_class.without_membership(vorstand)).not_to include(person)
+    end
+
     it 'nimmt die Geistliche Leitung aus' do
       Fabricate(Group::OrtsgruppeVorstand::Geist.name.to_sym, group: vorstand, person: person)
       expect(described_class.without_membership(vorstand)).not_to include(person)

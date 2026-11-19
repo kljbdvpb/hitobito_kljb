@@ -12,7 +12,8 @@ class BoardMemberChecksController < ApplicationController
   helper_method :group, :people
 
   def index
-    authorize!(:manage_person_duplicates, group)
+    # Vorstand/Leiterrunde sind keine Layer-Gruppen: :manage_person_duplicates gilt nur fuer den Layer.
+    authorize!(:manage_person_duplicates, group.layer_group)
     raise ActiveRecord::RecordNotFound unless Kljb::BoardMembership.no_new_person?(group)
   end
 

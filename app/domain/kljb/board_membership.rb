@@ -41,7 +41,8 @@ module Kljb
       def without_membership(group)
         return Person.none unless no_new_person?(group)
 
-        Person.where(id: Role.where(group_id: group.id).where.not(type: EXEMPT_ROLE_TYPES)
+        Person.where(id: Role.active_and_future.where(group_id: group.id)
+                             .where.not(type: EXEMPT_ROLE_TYPES)
                              .select(:person_id))
               .where.not(id: member_person_ids(group.layer_group_id))
       end
@@ -52,13 +53,15 @@ module Kljb
         return false unless no_new_person?(role.group)
         return false if EXEMPT_ROLE_TYPES.include?(role.type)
 
-        !Role.where(group_id: role.group.layer_group_id, type: MEMBER_ROLE_TYPES, person_id: role.person_id).exists?
+        !member_person_ids(role.group.layer_group_id).where(person_id: role.person_id).exists?
       end
 
       private
 
       def member_person_ids(layer_group_id)
-        Role.where(group_id: layer_group_id, type: MEMBER_ROLE_TYPES).select(:person_id)
+        # Auch Rollen mit start_on in der Zukunft zaehlen (Role.active_and_future)
+        Role.active_and_future.where(group_id: layer_group_id, type: MEMBER_ROLE_TYPES)
+            .select(:person_id)
       end
     end
   end
