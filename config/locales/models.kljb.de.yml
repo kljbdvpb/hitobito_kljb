@@ -179,3 +179,9 @@ de:
         members_from_14: Mitglieder ab 14 Jahre
         members_up_to_27: Mitglieder bis einschließlich 27 Jahre
         members_without_birthday: Mitglieder ohne Geburtsdatum
+
+  export:
+    tabular:
+      groups:
+        list:
+          sum: Summe

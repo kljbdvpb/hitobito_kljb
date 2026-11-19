@@ -14,8 +14,10 @@ module Kljb::Export::Tabular::Groups::List
     members_without_birthday].freeze
   # Spalten direkt hinter members_discounted: abgeleitete Gesamtzahl, dann Altersgruppen
   ADDED_ATTRS = ([:members_total] + AGE_COUNT_ATTRS).freeze
-  # Zahlenspalten, die in der Summenzeile addiert werden
-  SUM_ATTRS = (MEMBER_COUNT_ATTRS + ADDED_ATTRS + [:member_count]).freeze
+  # Zahlenspalten, die in der Summenzeile addiert werden. Bewusst ohne member_count (Anzahl
+  # Personen mit beliebiger Rolle je Gruppe, zaehlt Personen mehrfach). Die members_*-Werte stehen
+  # nur an Ortsgruppen; Aggregatzeilen hoeherer Ebenen wuerden doppelt summiert.
+  SUM_ATTRS = (MEMBER_COUNT_ATTRS + ADDED_ATTRS).freeze
   SUM_LABEL_ATTR = :name
 
   def attributes
@@ -42,7 +44,7 @@ module Kljb::Export::Tabular::Groups::List
   def sum_row(sums)
     attributes.map do |attr|
       if attr == SUM_LABEL_ATTR
-        I18n.t("export.tabular.groups.list.sum", default: "Summe")
+        I18n.t("export.tabular.groups.list.sum")
       elsif SUM_ATTRS.include?(attr)
         sums[attr]
       end
