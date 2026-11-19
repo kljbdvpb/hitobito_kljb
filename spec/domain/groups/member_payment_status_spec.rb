@@ -264,7 +264,8 @@ describe Groups::MemberPaymentStatus do
       member_role('2000-01-01', start_on: '2021-01-01', end_on: '2021-08-01')    # vor Stichtag beendet
       member_role('2000-01-01', start_on: '2021-10-01')                          # nach Stichtag neu
       member_role(nil, start_on: '2021-01-01')                                   # ohne Geburtsdatum
-      group.update_columns(members_normal: 42, members_discounted: 7, updated_at: '2021-09-01')
+      group.update_columns(members_normal: 42, members_discounted: 7,
+                           updated_at: Time.zone.parse('2021-09-01 00:00'))
     end
 
     it 'counts roles on the cutoff boundaries' do
@@ -281,11 +282,12 @@ describe Groups::MemberPaymentStatus do
     end
 
     it 'does not touch members_normal, members_discounted or updated_at' do
+      updated_at_before = group.reload.updated_at
       paderborn_status.backfill_age_attributes!
       group.reload
+      expect(group.updated_at).to eq updated_at_before
       expect(group.members_normal).to eq 42
       expect(group.members_discounted).to eq 7
-      expect(group.updated_at).to eq Time.zone.parse('2021-09-01')
       expect(group.members_from_14).to eq 1
     end
 
