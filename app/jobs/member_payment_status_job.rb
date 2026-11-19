@@ -9,7 +9,9 @@ class MemberPaymentStatusJob < RecurringJob
   private
 
   def perform_internal
-    Group::Ortsgruppe.all.find_each do |group|
+    # Archivierte und geloeschte Ortsgruppen werden nicht mehr gezaehlt (Nutzerentscheidung 2026-11-19);
+    # bestehende Werte bleiben unveraendert.
+    Group::Ortsgruppe.without_archived_or_deleted.find_each do |group|
       Groups::MemberPaymentStatus.new(group).update
     end
   end
