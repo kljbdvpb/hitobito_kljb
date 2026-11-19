@@ -19,9 +19,11 @@ namespace :hitobito_kljb do
       attrs = Groups::MemberPaymentStatus::AGE_ATTRIBUTES
 
       puts "BACKFILL Altersgruppen Stichtag=#{date} #{apply ? "APPLY" : "TROCKENLAUF"}"
+      puts "Hinweis: Abgleich mit members_normal/discounted nur fuer den letzten Joblauf " \
+           "aussagekraeftig."
       sums = Hash.new(0)
       deviations = 0
-      Group::Ortsgruppe.find_each do |group|
+      Group::Ortsgruppe.without_deleted.find_each do |group|
         if !force && attrs.any? { |a| group.public_send(a) }
           puts "SKIP group=#{group.id} Altersspalten bereits gefuellt (FORCE=1 zum Ueberschreiben)"
           next
