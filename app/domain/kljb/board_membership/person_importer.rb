@@ -17,7 +17,8 @@ module Kljb
         return false unless super
 
         if import_person.new_record? && Kljb::BoardMembership.new_person_blocked?(group, role_type)
-          import_person.person.errors.add(:base, I18n.t('kljb.board_membership.new_person_blocked'))
+          message = Kljb::BoardMembership.new_person_blocked_message(group)
+          import_person.person.errors.add(:base, message)
           return false
         end
 

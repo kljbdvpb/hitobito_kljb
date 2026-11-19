@@ -66,7 +66,21 @@ describe RolesController, type: :controller do
     end
   end
 
-  context 'Geistliche Begleitung (Ausnahme von der Sperre)' do
+  context 'Rollentyp-Wechsel (Core change_type)' do
+    it 'zeigt den Hinweis, wenn die Person danach ohne Mitgliedsrolle in einer Vorstandsrolle ist' do
+      role = Fabricate(Group::OrtsgruppeVorstand::Geist.name.to_sym, group: vorstand, person: person)
+
+      put :update, params: { group_id: vorstand.id, id: role.id,
+                             role: { type: Group::OrtsgruppeVorstand::Mitglied.sti_name,
+                                     group_id: vorstand.id } }
+
+      expect(Role.where(group_id: vorstand.id, person_id: person.id).map(&:type))
+        .to eq([Group::OrtsgruppeVorstand::Mitglied.sti_name])
+      expect(flash[:alert]).to include(person.to_s)
+    end
+  end
+
+  context 'Geist (Ausnahme von der Sperre)' do
     it 'legt im Ortsgruppen-Vorstand eine neue Person als Geist an, ohne Hinweis' do
       expect do
         post_role(vorstand, Group::OrtsgruppeVorstand::Geist, new_person: new_person)
@@ -163,7 +177,7 @@ describe RolesController, type: :controller do
     it 'zeigt im Vorstand mit Rollentyp Mitglied nur die Suche samt Link auf Geist-Formular' do
       get :new, params: { group_id: vorstand.id, role: { type: Group::OrtsgruppeVorstand::Mitglied.sti_name } }
 
-      expect(response.body).to include('Geistliche Begleitung neu erfassen')
+      expect(response.body).to include('Geistliche Verbandsleitung neu erfassen')
       expect(response.body).to include(CGI.escapeHTML(
         new_group_role_path(vorstand, role: { type: Group::OrtsgruppeVorstand::Geist.sti_name })
       ))

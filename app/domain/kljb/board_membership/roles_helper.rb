@@ -30,14 +30,13 @@ module Kljb
       private
 
       def board_membership_form_hint
-        geist = Kljb::BoardMembership::EXEMPT_ROLE_TYPES.find do |type|
-          entry.group.class.role_types.map(&:sti_name).include?(type)
-        end
         hint = t('kljb.board_membership.form_hint')
+        geist = Kljb::BoardMembership.exempt_role_type(entry.group)
         return hint unless geist
 
+        label = Kljb::BoardMembership.exempt_role_label(entry.group)
         safe_join([hint,
-                   link_to(t('kljb.board_membership.form_geist_link'),
+                   link_to(t('kljb.board_membership.form_geist_link', role: label),
                            new_group_role_path(entry.group, role: { type: geist }))], ' ')
       end
     end

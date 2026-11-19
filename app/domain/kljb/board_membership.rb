@@ -53,6 +53,26 @@ module Kljb
         I18n.t('kljb.board_membership.membership_in_region', region: layer.to_s)
       end
 
+      # Rollenbezeichnung der ausgenommenen Rolle (Geist) in dieser Gruppe, z.B. fuer Texte/Link;
+      # nil, wenn die Gruppe keine solche Rolle hat (Leiterrunde).
+      def exempt_role_type(group)
+        group = group.object if group.try(:decorated?)
+        names = group.class.role_types.map(&:sti_name)
+        EXEMPT_ROLE_TYPES.find { |type| names.include?(type) }
+      end
+
+      def new_person_blocked_message(group)
+        label = exempt_role_label(group)
+        return I18n.t('kljb.board_membership.new_person_blocked') unless label
+
+        I18n.t('kljb.board_membership.new_person_blocked_exempt', role: label)
+      end
+
+      def exempt_role_label(group)
+        type = exempt_role_type(group)
+        type && type.constantize.model_name.human
+      end
+
       def exempt_role_type?(role_type)
         name = role_type.respond_to?(:sti_name) ? role_type.sti_name : role_type.to_s
         EXEMPT_ROLE_TYPES.include?(name)
@@ -84,13 +104,16 @@ module Kljb
       # irgendeiner Ortsgruppe unterhalb dieses Regionalverbands (nicht in fremden RV).
       # Auch Rollen mit start_on in der Zukunft zaehlen (::Role.active_and_future).
       def member_person_ids(layer_group)
-        ::Role.active_and_future.where(group_id: member_group_ids(layer_group), type: MEMBER_ROLE_TYPES)
-            .select(:person_id)
+        ::Role.active_and_future.without_archived
+              .where(group_id: member_group_ids(layer_group), type: MEMBER_ROLE_TYPES)
+              .select(:person_id)
       end
 
       def member_group_ids(layer_group)
         if layer_group.is_a?(::Group::Regionalverband)
-          layer_group.descendants.where(type: ::Group::Ortsgruppe.sti_name).select(:id)
+          # frisch laden: lft/rgt der im Speicher gehaltenen Instanz koennen veraltet sein
+          ::Group.find(layer_group.id).descendants.without_archived
+                 .where(type: ::Group::Ortsgruppe.sti_name).select(:id)
         else
           [layer_group.id]
         end

@@ -89,4 +89,31 @@ describe Kljb::BoardMembership, 'Fachentscheidungen 2026-11-19' do
     ag = Fabricate(Group::OrtsgruppeAg.name.to_sym, parent: og)
     expect(described_class.no_new_person?(ag)).to be false
   end
+
+  describe 'archivierte Mitgliedschaften' do
+    before { Fabricate(Group::OrtsgruppeVorstand::Mitglied.name.to_sym, group: vorstand, person: person) }
+
+    it 'zaehlt eine archivierte Mitgliedsrolle in der Ortsgruppe nicht' do
+      role = Fabricate(Group::Ortsgruppe::Mitglied.name.to_sym, group: og, person: person)
+      role.update_column(:archived_at, 1.day.ago)
+
+      expect(described_class.without_membership(vorstand)).to include(person)
+    end
+
+    it 'zaehlt im RV-Vorstand keine Mitgliedschaft in einer archivierten Ortsgruppe' do
+      Fabricate(Group::RegionalverbandVorstand::Mitglied.name.to_sym, group: rv_vorstand, person: person)
+      role = Fabricate(Group::Ortsgruppe::Mitglied.name.to_sym, group: og, person: person)
+      og.update_column(:archived_at, 1.day.ago)
+      role.update_column(:archived_at, 1.day.ago)
+
+      expect(described_class.without_membership(rv_vorstand)).to include(person)
+    end
+  end
+
+  describe 'Rollenbezeichnung der Ausnahme' do
+    it 'kommt aus dem Rollen-Label, nicht vorhanden in der Leiterrunde' do
+      expect(described_class.exempt_role_label(vorstand)).to eq('Geistliche Verbandsleitung')
+      expect(described_class.exempt_role_label(Group::OrtsgruppeLeiterrunde.find_by(parent_id: og.id))).to be_nil
+    end
+  end
 end

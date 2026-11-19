@@ -6,9 +6,9 @@
 #  https://github.com/hitobito/hitobito_kljb.
 
 # Bericht "Vorstand/Leitung ohne Mitgliedsrolle" (T75): Personen in Vorstand bzw. Leiterrunde
-# einer Ortsgruppe, die in der Ortsgruppe (RV-Vorstand: in einer Ortsgruppe des RV) nicht Mitglied sind
-# (moegliche
-# Dubletten oder fehlende Mitgliedschaft). Nur Anzeige, keine Aenderung von Daten.
+# einer Ortsgruppe, die in der Ortsgruppe (RV-Vorstand: in einer Ortsgruppe des RV) nicht
+# Mitglied sind (moegliche Dubletten oder fehlende Mitgliedschaft). Nur Anzeige, keine
+# Aenderung von Daten.
 class BoardMemberChecksController < ApplicationController
   helper_method :group, :people
 
