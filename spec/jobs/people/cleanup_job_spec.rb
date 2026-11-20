@@ -50,7 +50,7 @@ describe People::CleanupJob do
 
   it 'loescht Person mit Teilnahme an einem vergangenen Event (Wagon-Frist 0, keine Minimierung)' do
     person = old_person
-    event = Fabricate(:event, dates: [Event::Date.new(start_at: 2.years.ago, finish_at: 2.years.ago)])
+    event = Fabricate(:event, groups: [groups(:root)], dates: [Event::Date.new(start_at: 2.years.ago, finish_at: 2.years.ago)])
     Event::Participation.create!(event: event, participant: person)
 
     expect { job.perform }.to change { ::Person.count }.by(-1)
@@ -62,7 +62,7 @@ describe People::CleanupJob do
     allow(Settings.people.cleanup_cutoff_duration)
       .to receive(:regarding_event_participations).and_return(120)
     person = old_person
-    event = Fabricate(:event, dates: [Event::Date.new(start_at: 2.years.ago, finish_at: 2.years.ago)])
+    event = Fabricate(:event, groups: [groups(:root)], dates: [Event::Date.new(start_at: 2.years.ago, finish_at: 2.years.ago)])
     Event::Participation.create!(event: event, participant: person)
 
     expect { job.perform }.not_to change { ::Person.count }
@@ -72,7 +72,7 @@ describe People::CleanupJob do
 
   it 'laesst Person mit Teilnahme an kuenftigem Event unberuehrt' do
     person = old_person
-    event = Fabricate(:event, dates: [Event::Date.new(start_at: 10.days.from_now)])
+    event = Fabricate(:event, groups: [groups(:root)], dates: [Event::Date.new(start_at: 10.days.from_now)])
     Event::Participation.create!(event: event, participant: person)
 
     expect { job.perform }.not_to change { ::Person.count }

@@ -41,7 +41,7 @@ describe 'hitobito_kljb:people_cleanup:dry_run' do
   let!(:to_delete) { old_person }
   let!(:to_minimize) do
     old_person.tap do |person|
-      event = Fabricate(:event, dates: [Event::Date.new(start_at: 1.year.ago, finish_at: 1.year.ago)])
+      event = Fabricate(:event, groups: [groups(:root)], dates: [Event::Date.new(start_at: 1.year.ago, finish_at: 1.year.ago)])
       Event::Participation.create!(event: event, participant: person)
     end
   end

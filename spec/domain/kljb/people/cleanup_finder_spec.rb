@@ -84,10 +84,10 @@ describe Kljb::People::CleanupFinder do
 
   context 'Regressionsschutz der Core-Filter (bleiben nach dem base_scope-Override wirksam)' do
     let(:future_event) do
-      Fabricate(:event, dates: [Event::Date.new(start_at: 10.days.from_now)])
+      Fabricate(:event, groups: [groups(:root)], dates: [Event::Date.new(start_at: 10.days.from_now)])
     end
     let(:past_event) do
-      Fabricate(:event, dates: [Event::Date.new(start_at: 10.days.ago, finish_at: 5.days.ago)])
+      Fabricate(:event, groups: [groups(:root)], dates: [Event::Date.new(start_at: 10.days.ago, finish_at: 5.days.ago)])
     end
 
     it 'findet Person mit Teilnahme an vergangenem Event (Job loescht sie, Teilnahmefrist 0)' do

@@ -144,7 +144,7 @@ describe Kljb::OrphanGroups do
       it 'zaehlt Subscriptions auf die Gruppe, Events und Personen mit primary_group_id' do
         other_list = Fabricate(:mailing_list, group: healthy_og)
         Subscription.create!(mailing_list: other_list, subscriber: orphan_og,
-                             related_role_types: [Group::Ortsgruppe::Mitglied.sti_name])
+                             related_role_types: [RelatedRoleType.new(role_type: Group::Ortsgruppe::Mitglied.sti_name)])
         event = Fabricate(:event, groups: [orphan_og])
         person = Fabricate(:person)
         person.update_columns(primary_group_id: orphan_og.id)
