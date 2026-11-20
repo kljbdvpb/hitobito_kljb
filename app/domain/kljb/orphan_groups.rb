@@ -16,9 +16,30 @@
 #   gueltig) bei verwaisten Gruppen fehlschlagen koennen.
 # Kein Hard-Delete. Idempotent: bereits geloeschte Gruppen und beendete Rollen werden nicht
 # erneut angefasst.
+#
+# Abhaengige Objekte (Core 2.11.5 app/models/group.rb:141-170 haengen sie per dependent: :destroy
+# an die Gruppe; update_all loest diese Callbacks NICHT aus): Verteiler, Subscriptions auf die
+# Gruppe, Kalender, InvoiceConfig, Events der Gruppe, Rechnungen. Der Trockenlauf zaehlt sie je
+# Gruppe; apply! bricht ohne Aenderung ab (DependentsFound), wenn solche Objekte existieren,
+# ausser force: true. Auch mit force bleiben sie unveraendert bestehen (nicht geloescht).
+# Personen mit primary_group_id auf eine verwaiste Gruppe werden immer auf NULL gesetzt (die
+# Rollen-Callbacks set_first_primary_group laufen bei update_all nicht); das blockiert nicht.
+# deleter_id bleibt bewusst NULL: kein Benutzer fuehrt die Bereinigung aus, ein Systemlauf.
 module Kljb
   class OrphanGroups
-    Row = Struct.new(:id, :type, :active_roles, :ended_roles, :future_roles, keyword_init: true)
+    DEPENDENT_KEYS = %i[mailing_lists subscriptions calendars invoice_configs events invoices
+                        primary_group_people].freeze
+    # primary_group_people wird automatisch bereinigt und blockiert apply! nicht.
+    BLOCKING_KEYS = (DEPENDENT_KEYS - [:primary_group_people]).freeze
+
+    class DependentsFound < StandardError; end
+
+    Row = Struct.new(:id, :type, :active_roles, :ended_roles, :future_roles, :dependents,
+                     keyword_init: true) do
+      def blocking_dependents
+        BLOCKING_KEYS.sum { |key| dependents[key].to_i }
+      end
+    end
 
     def initialize(today: Date.current)
       @today = today
@@ -30,31 +51,46 @@ module Kljb
       return [] if ids.empty?
 
       groups = ::Group.unscoped.where(id: ids, deleted_at: nil).order(:id).pluck(:id, :type)
+      dependents = dependent_counts(groups.map(&:first))
       groups.map do |id, type|
         Row.new(id: id, type: type, active_roles: count(active_roles, id),
-                ended_roles: count(ended_roles, id), future_roles: count(future_roles, id))
+                ended_roles: count(ended_roles, id), future_roles: count(future_roles, id),
+                dependents: dependents.transform_values { |counts| counts[id].to_i })
       end
     end
 
-    # Beendet aktive/kuenftige Rollen (end_on = gestern) und loescht Gruppen weich.
-    # Gibt die Summen zurueck.
-    def apply!
-      rows = self.rows
+    # Beendet aktive/kuenftige Rollen, setzt primary_group_id betroffener Personen auf NULL und
+    # loescht Gruppen weich. +rows+ sind die zuvor gesichteten Zeilen (Standard: frisch
+    # ermittelt). Wirft DependentsFound, ohne etwas zu schreiben, wenn abhaengige Objekte
+    # existieren und force nicht gesetzt ist. Gibt die Summen zurueck.
+    def apply!(rows = self.rows, force: false)
+      blocked = rows.select { |row| row.blocking_dependents.positive? }
+      if blocked.any? && !force
+        raise DependentsFound,
+              "#{blocked.size} Gruppen haben abhaengige Objekte (IDs: #{blocked.map(&:id).join(",")}); " \
+              "nichts geschrieben. Mit FORCE=1 trotzdem ausfuehren (Objekte bleiben unveraendert)."
+      end
+
       ids = rows.map(&:id)
       now = Time.zone.now
       ended = 0
       deleted = 0
+      unset_primary = 0
       ::ActiveRecord::Base.transaction do
         ended = end_roles(ids, now)
+        unset_primary = ::Person.where(primary_group_id: ids)
+                                .update_all(primary_group_id: nil, updated_at: now)
+        # deleter_id bleibt NULL (Systemlauf ohne Benutzer, kein Stamper)
         deleted = ::Group.unscoped.where(id: ids, deleted_at: nil)
                          .update_all(deleted_at: now, updated_at: now)
       end
-      {groups: deleted, roles_ended: ended}
+      {groups: deleted, roles_ended: ended, primary_groups_unset: unset_primary}
     end
 
     def totals(rows = self.rows)
       {groups: rows.size, active_roles: rows.sum(&:active_roles),
        ended_roles: rows.sum(&:ended_roles), future_roles: rows.sum(&:future_roles)}
+        .merge(DEPENDENT_KEYS.index_with { |key| rows.sum { |row| row.dependents[key].to_i } })
     end
 
     private
@@ -63,14 +99,21 @@ module Kljb
       @today - 1
     end
 
-    # Aktive Rollen: end_on = gestern. Kuenftige Rollen (start_on > heute) wuerden danach vor
-    # ihrem Beginn enden, daher start_on ebenfalls auf gestern setzen.
+    # Rollen mit start_on heute oder spaeter wuerden bei end_on = gestern vor ihrem Beginn enden
+    # (Core 2.11.5 Role: end_on >= start_on, app/models/role.rb:115-119), bei end_on = start_on
+    # aber noch am Beginntag aktiv. Sie werden daher auf start_on = end_on = gestern gesetzt
+    # (nie aktiv, end_on >= start_on gilt). Alle uebrigen aktiven Rollen (start_on < heute oder
+    # NULL): end_on = gestern. update_all erzeugt keine PaperTrail-Versionen (Rollback nur per
+    # Backup).
     def end_roles(group_ids, now)
-      active = active_roles.where(group_id: group_ids)
-                           .update_all(end_on: yesterday, updated_at: now)
-      future = future_roles.where(group_id: group_ids)
-                           .update_all(start_on: yesterday, end_on: yesterday, updated_at: now)
-      active + future
+      not_yet_started = ::Role.with_inactive.where(group_id: group_ids)
+                              .where("roles.start_on >= ?", @today)
+                              .where("roles.end_on >= :today OR roles.end_on IS NULL", today: @today)
+      collapsed = not_yet_started.update_all(start_on: yesterday, end_on: yesterday,
+                                             updated_at: now)
+      running = active_roles.where(group_id: group_ids)
+                            .update_all(end_on: yesterday, updated_at: now)
+      collapsed + running
     end
 
     def active_roles
@@ -88,6 +131,30 @@ module Kljb
 
     def count(scope, group_id)
       scope.where(group_id: group_id).count
+    end
+
+    # {Schluessel => {group_id => Anzahl}} fuer abhaengige Objekte (je ein Query pro Art)
+    def dependent_counts(ids)
+      return DEPENDENT_KEYS.index_with { {} } if ids.empty?
+
+      {
+        mailing_lists: ::MailingList.where(group_id: ids).group(:group_id).count,
+        subscriptions: ::Subscription.where(subscriber_type: ::Group.sti_name, subscriber_id: ids)
+                                     .group(:subscriber_id).count,
+        calendars: ::Calendar.where(group_id: ids).group(:group_id).count,
+        invoice_configs: ::InvoiceConfig.where(group_id: ids).group(:group_id).count,
+        events: events_per_group(ids),
+        invoices: ::Invoice.where(group_id: ids).group(:group_id).count,
+        primary_group_people: ::Person.where(primary_group_id: ids).group(:primary_group_id).count
+      }
+    end
+
+    # Join-Tabelle events_groups (has_and_belongs_to_many :events der Gruppe)
+    def events_per_group(ids)
+      sql = ::Group.sanitize_sql_array(
+        ["SELECT group_id, COUNT(*) FROM events_groups WHERE group_id IN (?) GROUP BY group_id", ids]
+      )
+      ::Group.connection.select_rows(sql).to_h { |group_id, n| [group_id.to_i, n.to_i] }
     end
 
     # Alle Gruppen ohne Soft-Delete-Filter (auch bereits geloeschte): Vorfahrenkette pruefen
