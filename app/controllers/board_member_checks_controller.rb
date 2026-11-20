@@ -14,6 +14,9 @@ class BoardMemberChecksController < ApplicationController
 
   def index
     # Vorstand/Leiterrunde sind keine Layer-Gruppen: :manage_person_duplicates gilt nur fuer den Layer.
+    # Verwaiste Gruppe (Layer fehlt): kein Bericht moeglich, 404 statt NoMethodError/Routing-Fehler
+    raise ActiveRecord::RecordNotFound if group.layer_group.nil?
+
     authorize!(:manage_person_duplicates, group.layer_group)
     raise ActiveRecord::RecordNotFound unless Kljb::BoardMembership.no_new_person?(group)
   end

@@ -78,4 +78,15 @@ describe BoardMemberChecksController, type: :controller do
 
     expect { get :index, params: { group_id: vorstand.id } }.to raise_error(CanCan::AccessDenied)
   end
+
+  context 'verwaiste Gruppe (layer_group_id zeigt ins Leere)' do
+    before do
+      vorstand.update_columns(layer_group_id: Group.unscoped.maximum(:id) + 1000)
+    end
+
+    it 'liefert 404 statt NoMethodError' do
+      expect { get :index, params: { group_id: vorstand.id } }
+        .to raise_error(ActiveRecord::RecordNotFound)
+    end
+  end
 end

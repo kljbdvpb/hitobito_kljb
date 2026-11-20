@@ -82,11 +82,14 @@ module Kljb
       # (Layer) keine Mitgliedsrolle haben. Ausgenommene Rollen (Geist) zaehlen nicht.
       def without_membership(group)
         return ::Person.none unless no_new_person?(group)
+        # Verwaiste Gruppe (Layer fehlt): defensiv keine Treffer statt NoMethodError
+        layer = group.layer_group
+        return ::Person.none if layer.nil?
 
         ::Person.where(id: ::Role.active_and_future.where(group_id: group.id)
                              .where.not(type: EXEMPT_ROLE_TYPES)
                              .select(:person_id))
-              .where.not(id: member_person_ids(group.layer_group))
+              .where.not(id: member_person_ids(layer))
       end
 
       # Hinweis noetig fuer genau diese Rolle (Vorstand/Leiterrunde, nicht ausgenommen,
@@ -94,8 +97,10 @@ module Kljb
       def membership_missing?(role)
         return false unless no_new_person?(role.group)
         return false if EXEMPT_ROLE_TYPES.include?(role.type)
+        layer = role.group.layer_group
+        return false if layer.nil? # verwaiste Gruppe: kein Hinweis
 
-        !member_person_ids(role.group.layer_group).where(person_id: role.person_id).exists?
+        !member_person_ids(layer).where(person_id: role.person_id).exists?
       end
 
       private
