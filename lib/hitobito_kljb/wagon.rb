@@ -29,6 +29,9 @@ module HitobitoKljb
 
       Event::ParticipationContactData.include Kljb::Event::ParticipationContactData
 
+      # Automatisches Loeschen von Personen ohne Rolle: Absicherungen (siehe docs/personen-cleanup.md)
+      ::People::CleanupFinder.prepend Kljb::People::CleanupFinder
+
       # Quicksearch (/full.json): Gruppen vor Personen
       FullTextController.prepend Kljb::QuicksearchGroupsFirst
 

@@ -29,6 +29,21 @@ root_email: <%= ENV['RAILS_ROOT_USER_EMAIL'].presence || 'datenschutz@kljb-pader
 impersonate:
   notify: false
 
+# Automatisches Loeschen von Personen ohne Rolle (Nutzerentscheidung 2026-11-20:
+# "Nach 3 Monaten ohne Rollen koennen Personen geloescht werden").
+# Der Core-Job People::CleanupJob (taeglich) wertet FeatureGate "people.cleanup_job" aus
+# (Settings.people.cleanup_job.enabled); Wagon-Settings ueberschreiben die Core-Werte
+# (Core: enabled false, Fristen 1000 Monate). Zusaetzliche Absicherungen:
+# Kljb::People::CleanupFinder. Ausschalten: enabled auf false (Rollback).
+# Ereignis-Teilnahmen: Core-Default (120 Monate) bleibt, Personen mit juengeren Teilnahmen
+# werden nur minimiert, nicht geloescht.
+people:
+  cleanup_job:
+    enabled: true
+  cleanup_cutoff_duration:
+    regarding_roles: 3 # Monate seit Ende der letzten Rolle
+    regarding_current_sign_in_at: 3 # Monate seit letztem Login
+
 # Absenderdomain per RAILS_MAIL_DOMAIN ueberschreibbar (wie im Core-settings.yml),
 # Fallback: post.kljb-paderborn.de.
 # Anzeigename "KLJB" (Fachentscheidung; der frueher uebernommene Tippfehler "KLIB" ist korrigiert).
