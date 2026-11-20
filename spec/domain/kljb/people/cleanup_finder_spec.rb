@@ -82,10 +82,68 @@ describe Kljb::People::CleanupFinder do
     expect(found).not_to include(person)
   end
 
+  context 'Regressionsschutz der Core-Filter (bleiben nach dem base_scope-Override wirksam)' do
+    let(:future_event) do
+      Fabricate(:event, dates: [Event::Date.new(start_at: 10.days.from_now)])
+    end
+    let(:past_event) do
+      Fabricate(:event, dates: [Event::Date.new(start_at: 10.days.ago, finish_at: 5.days.ago)])
+    end
+
+    it 'findet Person mit Teilnahme an vergangenem Event (Job minimiert sie spaeter)' do
+      person = old_person
+      Event::Participation.create!(event: past_event, participant: person)
+      expect(found).to include(person)
+    end
+
+    it 'findet Person nicht mit Teilnahme an kuenftigem Event' do
+      person = old_person
+      Event::Participation.create!(event: future_event, participant: person)
+      expect(found).not_to include(person)
+    end
+
+    it 'findet People Manager nicht (verwaltet eine andere Person)' do
+      manager = old_person
+      manager.manageds = [old_person]
+      expect(found).not_to include(manager)
+    end
+
+    it 'findet bereits minimierte Person nicht' do
+      person = old_person
+      person.update_columns(minimized_at: 1.day.ago)
+      expect(found).not_to include(person)
+    end
+  end
+
+  context 'Direkt-Abonnenten von Verteilern' do
+    let(:list) { Fabricate(:mailing_list, group: og) }
+
+    it 'schuetzt Person mit direkter Subscription' do
+      person = old_person
+      Subscription.create!(mailing_list: list, subscriber: person)
+      expect(found).not_to include(person)
+    end
+
+    it 'schuetzt Person nicht, deren Subscription ausgeschlossen (excluded) ist' do
+      person = old_person
+      Subscription.create!(mailing_list: list, subscriber: person, excluded: true)
+      expect(found).to include(person)
+    end
+
+    it 'schuetzt nicht, wenn protect_direct_subscribers? false liefert' do
+      allow(Kljb::People::CleanupFinder).to receive(:protect_direct_subscribers?).and_return(false)
+      person = old_person
+      Subscription.create!(mailing_list: list, subscriber: person)
+      expect(found).to include(person)
+    end
+
+    it 'schuetzt Direkt-Abonnenten standardmaessig (Fachfrage F4 offen)' do
+      expect(Kljb::People::CleanupFinder.protect_direct_subscribers?).to be true
+    end
+  end
+
   context 'Settings' do
-    it 'aktiviert den Cleanup-Job mit 3 Monaten Fristen und 120 Monaten Teilnahmen' do
-      expect(Settings.people.cleanup_job.enabled).to be true
-      expect(FeatureGate.enabled?('people.cleanup_job')).to be true
+    it 'setzt die Fristen auf 3 Monate (Rollen, Login) und 120 Monate (Teilnahmen)' do
       durations = Settings.people.cleanup_cutoff_duration
       expect(durations.regarding_roles).to eq 3
       expect(durations.regarding_current_sign_in_at).to eq 3

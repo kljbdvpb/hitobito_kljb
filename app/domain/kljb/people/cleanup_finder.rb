@@ -14,18 +14,35 @@
 #    Person mit altem beendetem und nur kuenftigem Rollenbeginn wuerde sonst geloescht.
 # 3. Frisch angelegte Personen ohne Rolle (z.B. Kursanmeldung) werden erst nach Ablauf der
 #    Rollen-Frist beruecksichtigt.
+# 4. Personen mit direkter Verteiler-Subscription (Person als Abonnent, nicht excluded) bleiben
+#    erhalten, solange protect_direct_subscribers? true ist (Fachfrage F4 offen, vorerst Schutz an).
 module Kljb
   module People
     module CleanupFinder
+      # Vorerst true: Direkt-Abonnenten von Verteilern werden nicht geloescht (Destroyer wuerde
+      # die Subscriptions stillschweigend entfernen). Bei Fachentscheid false setzen.
+      PROTECT_DIRECT_SUBSCRIBERS = true
+
+      def self.protect_direct_subscribers?
+        PROTECT_DIRECT_SUBSCRIBERS
+      end
+
       private
 
       def base_scope
         scope = ::Person.where(minimized_at: nil).order(:id)
         root = ::Person.root
         scope = scope.where.not(id: root.id) if root
+        scope = scope.where(no_active_or_future_roles_exist)
+                     .where("people.created_at <= ?", created_before)
+        scope = scope.where.not(id: direct_subscriber_ids) if Kljb::People::CleanupFinder.protect_direct_subscribers?
         scope
-          .where(no_active_or_future_roles_exist)
-          .where("people.created_at <= ?", created_before)
+      end
+
+      # Personen, die direkt (nicht ueber Gruppe/Rolle) in einem Verteiler eingetragen sind
+      def direct_subscriber_ids
+        ::Subscription.where(subscriber_type: ::Person.sti_name, excluded: false)
+                      .select(:subscriber_id)
       end
 
       # Keine aktive ODER kuenftige Rolle (end_on >= heute oder NULL, inkl. start_on in Zukunft)
