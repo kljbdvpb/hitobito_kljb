@@ -48,7 +48,19 @@ describe People::CleanupJob do
     end
   end
 
-  it 'minimiert statt zu loeschen bei Teilnahme an einem Event der letzten 120 Monate' do
+  it 'loescht Person mit Teilnahme an einem vergangenen Event (Wagon-Frist 0, keine Minimierung)' do
+    person = old_person
+    event = Fabricate(:event, dates: [Event::Date.new(start_at: 2.years.ago, finish_at: 2.years.ago)])
+    Event::Participation.create!(event: event, participant: person)
+
+    expect { job.perform }.to change { ::Person.count }.by(-1)
+
+    expect(exists?(person)).to be false
+  end
+
+  it 'minimiert nur bei explizit gesetzter Teilnahmefrist (Core-Pfad, Stub 120 Monate)' do
+    allow(Settings.people.cleanup_cutoff_duration)
+      .to receive(:regarding_event_participations).and_return(120)
     person = old_person
     event = Fabricate(:event, dates: [Event::Date.new(start_at: 2.years.ago, finish_at: 2.years.ago)])
     Event::Participation.create!(event: event, participant: person)

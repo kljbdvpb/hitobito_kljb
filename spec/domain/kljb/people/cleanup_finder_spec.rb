@@ -90,7 +90,7 @@ describe Kljb::People::CleanupFinder do
       Fabricate(:event, dates: [Event::Date.new(start_at: 10.days.ago, finish_at: 5.days.ago)])
     end
 
-    it 'findet Person mit Teilnahme an vergangenem Event (Job minimiert sie spaeter)' do
+    it 'findet Person mit Teilnahme an vergangenem Event (Job loescht sie, Teilnahmefrist 0)' do
       person = old_person
       Event::Participation.create!(event: past_event, participant: person)
       expect(found).to include(person)
@@ -143,11 +143,11 @@ describe Kljb::People::CleanupFinder do
   end
 
   context 'Settings' do
-    it 'setzt die Fristen auf 3 Monate (Rollen, Login) und 120 Monate (Teilnahmen)' do
+    it 'setzt die Fristen auf 3 Monate (Rollen, Login) und 0 (Teilnahmen: loeschen statt minimieren)' do
       durations = Settings.people.cleanup_cutoff_duration
       expect(durations.regarding_roles).to eq 3
       expect(durations.regarding_current_sign_in_at).to eq 3
-      expect(durations.regarding_event_participations).to eq 120
+      expect(durations.regarding_event_participations).to eq 0
     end
   end
 end

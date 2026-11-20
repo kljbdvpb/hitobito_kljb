@@ -38,14 +38,17 @@ impersonate:
 # Schalter: ENV KLJB_PEOPLE_CLEANUP=1 aktiviert den Job (Default AUS). Wird erst nach Cutover,
 # frischem Backup und Trockenlauf (rake hitobito_kljb:people_cleanup:dry_run) in der .env gesetzt.
 # Ausschalten (Rollback): Variable entfernen/auf 0 setzen und Container neu starten.
-# Ereignis-Teilnahmen: Core-Default (120 Monate) bleibt, Personen mit juengeren Teilnahmen
-# werden nur minimiert, nicht geloescht.
+# Ereignis-Teilnahmen (Nutzerentscheidung 2026-11-20): Personen mit Teilnahmen der letzten
+# 10 Jahre werden AUCH geloescht, nicht minimiert (der Core-Minimizer ist ein No-Op und liesse
+# alle Daten bestehen). Mit Frist 0 prueft der Core-Job nur noch kuenftige Events; Personen mit
+# Teilnahme an kuenftigen Events schliesst der Finder ohnehin aus -> immer Destroyer.
 people:
   cleanup_job:
     enabled: <%= ENV['KLJB_PEOPLE_CLEANUP'] == '1' %>
   cleanup_cutoff_duration:
     regarding_roles: 3 # Monate seit Ende der letzten Rolle
     regarding_current_sign_in_at: 3 # Monate seit letztem Login
+    regarding_event_participations: 0 # 0 = Teilnahmen vergangener Events zaehlen nicht (loeschen)
 
 # Absenderdomain per RAILS_MAIL_DOMAIN ueberschreibbar (wie im Core-settings.yml),
 # Fallback: post.kljb-paderborn.de.

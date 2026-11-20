@@ -32,6 +32,12 @@ describe 'hitobito_kljb:people_cleanup:dry_run' do
     env.each_key { |k| ENV.delete(k) }
   end
 
+  # Wagon-Frist ist 0 (alles wird geloescht); fuer den Minimierungs-Zaehler explizit 120 Monate
+  before do
+    allow(Settings.people.cleanup_cutoff_duration)
+      .to receive(:regarding_event_participations).and_return(120)
+  end
+
   let!(:to_delete) { old_person }
   let!(:to_minimize) do
     old_person.tap do |person|
@@ -51,6 +57,15 @@ describe 'hitobito_kljb:people_cleanup:dry_run' do
       expect(output).to match(/WUERDE_MINIMIERT=1$/)
       expect(output).to match(/je_angemeldet=1 /)
     end.not_to(change { [::Person.count, ::Person.where.not(minimized_at: nil).count] })
+  end
+
+  it 'minimiert mit den Wagon-Settings (Frist 0) nichts, sondern loescht alle Kandidaten' do
+    allow(Settings.people.cleanup_cutoff_duration)
+      .to receive(:regarding_event_participations).and_return(0)
+
+    output = capture_task
+
+    expect(output).to match(/WUERDE_MINIMIERT=0$/)
   end
 
   it 'laeuft unabhaengig vom Schalter (Job aus)' do

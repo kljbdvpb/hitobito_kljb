@@ -42,9 +42,10 @@ describe 'Wagon-Settings' do
       expect(rendered_settings('1').dig('people', 'cleanup_job', 'enabled')).to be true
     end
 
-    it 'setzt Fristen 3/3 Monate' do
+    it 'setzt Fristen 3/3/0 Monate (Rollen, Login, Teilnahmen)' do
       cutoff = rendered_settings(nil).dig('people', 'cleanup_cutoff_duration')
-      expect(cutoff).to eq('regarding_roles' => 3, 'regarding_current_sign_in_at' => 3)
+      expect(cutoff).to eq('regarding_roles' => 3, 'regarding_current_sign_in_at' => 3,
+                         'regarding_event_participations' => 0)
     end
 
     it 'laedt im Test ohne ENV mit ausgeschaltetem Job' do
