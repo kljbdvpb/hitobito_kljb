@@ -35,6 +35,21 @@ describe Kljb::BoardMembership do
     end
   end
 
+  context 'verwaiste Gruppe (Layer fehlt)' do
+    # Rolle zuerst anlegen (Validierungen brauchen den Layer), dann Layer verschwinden lassen
+    let!(:role) { Fabricate(Group::OrtsgruppeVorstand::Vorsitz.name.to_sym, group: vorstand, person: person) }
+
+    before { allow_any_instance_of(::Group).to receive(:layer_group).and_return(nil) }
+
+    it 'without_membership liefert keine Personen statt NoMethodError' do
+      expect(described_class.without_membership(vorstand).to_a).to eq []
+    end
+
+    it 'membership_missing? ist false statt NoMethodError' do
+      expect(described_class.membership_missing?(role)).to be false
+    end
+  end
+
   context '.without_membership' do
     it 'liefert Personen ohne Mitglied-Rolle in der Ortsgruppe' do
       Fabricate(Group::OrtsgruppeVorstand::Vorsitz.name.to_sym, group: vorstand, person: person)
