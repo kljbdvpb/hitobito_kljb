@@ -34,12 +34,15 @@ impersonate:
 # Der Core-Job People::CleanupJob (taeglich) wertet FeatureGate "people.cleanup_job" aus
 # (Settings.people.cleanup_job.enabled); Wagon-Settings ueberschreiben die Core-Werte
 # (Core: enabled false, Fristen 1000 Monate). Zusaetzliche Absicherungen:
-# Kljb::People::CleanupFinder. Ausschalten: enabled auf false (Rollback).
+# Kljb::People::CleanupFinder.
+# Schalter: ENV KLJB_PEOPLE_CLEANUP=1 aktiviert den Job (Default AUS). Wird erst nach Cutover,
+# frischem Backup und Trockenlauf (rake hitobito_kljb:people_cleanup:dry_run) in der .env gesetzt.
+# Ausschalten (Rollback): Variable entfernen/auf 0 setzen und Container neu starten.
 # Ereignis-Teilnahmen: Core-Default (120 Monate) bleibt, Personen mit juengeren Teilnahmen
 # werden nur minimiert, nicht geloescht.
 people:
   cleanup_job:
-    enabled: true
+    enabled: <%= ENV['KLJB_PEOPLE_CLEANUP'] == '1' %>
   cleanup_cutoff_duration:
     regarding_roles: 3 # Monate seit Ende der letzten Rolle
     regarding_current_sign_in_at: 3 # Monate seit letztem Login
