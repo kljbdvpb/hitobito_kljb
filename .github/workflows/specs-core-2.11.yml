@@ -1,9 +1,9 @@
-name: Specs gegen Core 2.11.5
+name: Specs gegen Core 2.11.11
 
 # Eigener Lauf für den Portierungs-Branch. Das Upstream-Reusable-Workflow ist auf
 # die Organisation hitobito/ festgelegt und wird hier nicht verwendet.
 #
-# Ablauf wie im Upstream-CI (hitobito/.github/workflows/wagon-tests.yml, Core 2.11.5):
+# Ablauf wie im Upstream-CI (hitobito/.github/workflows/wagon-tests.yml, Core 2.11.11):
 # Der Core liegt neben dem Wagon (hitobito/ und hitobito_kljb/), wird über Wagonfile.ci
 # eingebunden, die Specs laufen aber mit dem WAGON als Arbeitsverzeichnis.
 # Das ist wichtig: Der Wagon-spec_helper setzt APP_ROOT (app_root.rb), bevor der
@@ -65,11 +65,11 @@ jobs:
         with:
           path: hitobito_kljb
 
-      - name: Core 2.11.5 auschecken
+      - name: Core 2.11.11 auschecken
         uses: actions/checkout@v6
         with:
           repository: hitobito/hitobito
-          ref: 2.11.5
+          ref: 2.11.11
           path: hitobito
           fetch-depth: 1
 
